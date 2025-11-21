@@ -20,6 +20,7 @@ Welcome to **Chrome Simple Navigator**, a lightweight browser extension that enh
 4. **Click "Load unpacked"** button
 5. **Select** the extension directory (`chrome_extension` folder)
 6. The extension should now appear in your extensions list and be active
+7. Back to your page and refresh
 
 ### Permissions
 

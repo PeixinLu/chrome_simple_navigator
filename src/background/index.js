@@ -1,6 +1,12 @@
-﻿const extensionState = {
+﻿const MAX_NAV_LOGS = 20;
+
+let navLogCounter = 0;
+
+const extensionState = {
   lastPing: null,
-  totalPings: 0
+  totalPings: 0,
+  navigationLogs: [],
+  loggingEnabled: true
 };
 const CONFIRMATION_TIMEOUT_MS = 4000;
 const pendingCloseTabs = new Map();
@@ -23,6 +29,26 @@ function broadcastStatus() {
       }
     }
   );
+}
+
+function addNavigationLog(action, detail) {
+  if (!extensionState.loggingEnabled) {
+    return;
+  }
+  navLogCounter = (navLogCounter + 1) % Number.MAX_SAFE_INTEGER;
+  const entry = {
+    id: `${Date.now()}-${navLogCounter}`,
+    action,
+    detail,
+    timestamp: Date.now()
+  };
+  extensionState.navigationLogs = [entry, ...extensionState.navigationLogs].slice(0, MAX_NAV_LOGS);
+  broadcastStatus();
+}
+
+function clearNavigationLogs() {
+  extensionState.navigationLogs = [];
+  broadcastStatus();
 }
 
 function notifyUserInTab(tabId, message) {
@@ -52,7 +78,7 @@ function setPendingClose(tabId) {
   clearPendingClose(tabId);
   const timeoutId = setTimeout(() => pendingCloseTabs.delete(tabId), CONFIRMATION_TIMEOUT_MS);
   pendingCloseTabs.set(tabId, timeoutId);
-  notifyUserInTab(tabId, '再次执行以关闭标签页');
+  notifyUserInTab(tabId, 'Repeat shortcut to close this tab');
 }
 
 function clearReopenPending() {
@@ -74,7 +100,7 @@ function setReopenPending(tabId) {
     reopenPendingTabId = null;
   }, CONFIRMATION_TIMEOUT_MS);
   if (tabId) {
-    notifyUserInTab(tabId, '再次执行以重新打开标签页');
+    notifyUserInTab(tabId, 'Repeat shortcut to reopen last tab');
   }
 }
 
@@ -164,7 +190,7 @@ async function captureRouteStack(tabId) {
   }
 }
 
-async function handleBackCommand() {
+async function handleBackCommand(triggerLabel = 'Back command') {
   const tab = await getActiveTab();
   if (!tab?.id) {
     return;
@@ -186,8 +212,10 @@ async function handleBackCommand() {
       } else {
         await closeTab(tabToClose);
       }
+      addNavigationLog('close_tab', `${triggerLabel} → History exhausted, closing active tab`);
     } else {
       console.info('[background] history stack empty, awaiting confirmation to close', tab.id);
+      addNavigationLog('await_close', `${triggerLabel} → History empty, waiting for confirmation to close`);
       setPendingClose(tab.id);
     }
     return;
@@ -196,6 +224,7 @@ async function handleBackCommand() {
   const navigated = await execTabNavigation('goBack', tab.id);
   if (navigated) {
     clearPendingClose(tab.id);
+    addNavigationLog('back', `${triggerLabel} → Browser back navigation executed`);
     return;
   }
 
@@ -212,16 +241,19 @@ async function handleBackCommand() {
       } else {
         await closeTab(tabToClose);
       }
+      addNavigationLog('close_tab', `${triggerLabel} → Confirmed tab close`);
     } else {
       console.info('[background] goBack failed without stack info, awaiting confirmation to close', tab.id);
+      addNavigationLog('await_close', `${triggerLabel} → Unable to go back, waiting for confirmation to close`);
       setPendingClose(tab.id);
     }
   } else {
+    addNavigationLog('await_close', `${triggerLabel} → Back navigation failed, waiting to confirm close`);
     setPendingClose(tab.id);
   }
 }
 
-async function handleForwardCommand() {
+async function handleForwardCommand(triggerLabel = 'Forward command') {
   const tab = await getActiveTab();
   if (!tab?.id) {
     return;
@@ -233,6 +265,7 @@ async function handleForwardCommand() {
   const navigated = await execTabNavigation('goForward', tab.id);
   if (navigated) {
     clearReopenPending();
+    addNavigationLog('forward', `${triggerLabel} → Browser forward navigation executed`);
     return;
   }
 
@@ -244,8 +277,10 @@ async function handleForwardCommand() {
     if (reopenedTabId) {
       reopenedTabSources.set(reopenedTabId, sourceTabId);
     }
+    addNavigationLog('reopen_tab', `${triggerLabel} → Reopened the most recently closed tab`);
   } else {
     console.info('[background] unable to go forward, awaiting confirmation to reopen last tab');
+    addNavigationLog('await_reopen', `${triggerLabel} → Unable to go forward, waiting for confirmation to reopen last tab`);
     setReopenPending(tab.id);
   }
 }
@@ -271,11 +306,24 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       break;
     }
     case 'hotkey:back': {
-      handleBackCommand();
+      handleBackCommand('Shortcut Back');
       break;
     }
     case 'hotkey:forward': {
-      handleForwardCommand();
+      handleForwardCommand('Shortcut Forward');
+      break;
+    }
+    case 'popup:clearLogs': {
+      clearNavigationLogs();
+      sendResponse({ ok: true, ...extensionState });
+      break;
+    }
+    case 'popup:setLogging': {
+      if (typeof message.payload?.enabled === 'boolean') {
+        extensionState.loggingEnabled = message.payload.enabled;
+        broadcastStatus();
+        sendResponse({ ok: true, ...extensionState });
+      }
       break;
     }
     default: {

@@ -8,12 +8,26 @@
   </head>
   <body>
     <main class="popup">
-      <h1>Sample Companion</h1>
-      <section class="status">
-        <p>Last ping: <span id="lastPing">never</span></p>
-        <p>Total pings: <span id="totalPings">0</span></p>
+      <header class="header">
+        <h1>Navigation Log</h1>
+        <p class="usage">
+          Use Alt/Option + [ for Back and Alt/Option + ] for Forward. Repeat the command to close or reopen tabs when navigation is unavailable.
+        </p>
+      </header>
+      <section class="log-panel">
+        <p class="log-hint">Recent 20 entries. URLs and titles are never stored.</p>
+        <div class="controls">
+          <label class="switch">
+            <input type="checkbox" id="loggingToggle" checked />
+            <span class="switch-slider" aria-hidden="true"></span>
+            <span class="switch-label">Enable logging</span>
+          </label>
+          <button id="clear">Clear</button>
+        </div>
+        <ul id="logList" class="log-list">
+          <li class="empty">No entries yet</li>
+        </ul>
       </section>
-      <button id="refresh">Refresh</button>
     </main>
     <script type="module" src="popup.js"></script>
   </body>
