@@ -1,0 +1,40 @@
+﻿:root {
+  font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  color-scheme: light dark;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-width: 240px;
+}
+
+.popup {
+  padding: 16px;
+}
+
+h1 {
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+}
+
+.status {
+  background: rgba(0, 0, 0, 0.05);
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+button {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: none;
+  background-color: #2563eb;
+  color: #fff;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #1d4ed8;
+}
