@@ -4,8 +4,8 @@ Welcome to **Chrome Simple Navigator**, a lightweight browser extension that enh
 
 ## 🎯 Features
 
-- **Smart Backward Navigation**: Press `Alt + [` to navigate back in page history. If no history exists, a confirmation prompt will appear. Press the shortcut twice to close the current tab.
-- **Smart Forward Navigation**: Press `Alt + ]` to navigate forward in page history. If forward navigation is unavailable, press the shortcut twice to restore the last closed tab.
+- **Smart Backward Navigation**: Press `Alt + [` (Windows/Linux) or `Option + [` (macOS) to navigate back in page history. If no history exists, a confirmation prompt will appear. Press the shortcut twice to close the current tab.
+- **Smart Forward Navigation**: Press `Alt + ]` (Windows/Linux) or `Option + ]` (macOS) to navigate forward in page history. If forward navigation is unavailable, press the shortcut twice to restore the last closed tab.
 - **Intelligent Tab Management**: When closing a tab that was restored via forward navigation, automatically returns to the original tab you were on before the restore.
 - **User-Friendly Notifications**: In-page toast notifications (not system notifications) inform you when confirmation is needed for actions.
 - **Works on Regular Web Pages**: Compatible with standard `http://` and `https://` pages (system pages like `chrome://` are not supported due to browser restrictions).
@@ -18,7 +18,7 @@ Welcome to **Chrome Simple Navigator**, a lightweight browser extension that enh
 2. **Open Chrome** and navigate to `chrome://extensions/`
 3. **Enable Developer Mode** by toggling the switch in the top-right corner
 4. **Click "Load unpacked"** button
-5. **Select** the extension directory (`chrome_extension` folder)
+5. **Select** the extension directory (`chrome_simple_navigator` folder)
 6. The extension should now appear in your extensions list and be active
 7. Back to your page and refresh
 
@@ -35,23 +35,23 @@ The extension requires the following permissions:
 
 ### Basic Navigation
 
-- **`Alt + [`**: Navigate backward in page history
-- **`Alt + ]`**: Navigate forward in page history
+- **`Alt + [` / `Option + [`**: Navigate backward in page history
+- **`Alt + ]` / `Option + ]`**: Navigate forward in page history
 
 ### Advanced Usage
 
 #### Closing a Tab
-1. Press `Alt + [` when at the beginning of page history
-2. A toast notification will appear: "再次执行以关闭标签页" (Press again to close tab)
-3. Press `Alt + [` again within 4 seconds to confirm and close the tab
+1. Press `Alt + [` (Windows/Linux) or `Option + [` (macOS) when at the beginning of page history
+2. A toast notification will appear: "Repeat shortcut to close this tab"
+3. Press the shortcut again within 4 seconds to confirm and close the tab
 
 #### Restoring Closed Tabs
-1. Press `Alt + ]` when no forward history is available
-2. A toast notification will appear: "再次执行以重新打开标签页" (Press again to reopen tab)
-3. Press `Alt + ]` again within 4 seconds to confirm and restore the last closed tab
+1. Press `Alt + ]` (Windows/Linux) or `Option + ]` (macOS) when no forward history is available
+2. A toast notification will appear: "Repeat shortcut to reopen last tab"
+3. Press the shortcut again within 4 seconds to confirm and restore the last closed tab
 
 #### Returning to Original Tab
-When you close a tab that was restored via `Alt + ]`, the extension automatically switches back to the original tab you were on before the restore operation.
+When you close a tab that was restored via `Alt + ]` / `Option + ]`, the extension automatically switches back to the original tab you were on before the restore operation.
 
 ## ⚙️ Configuration
 
