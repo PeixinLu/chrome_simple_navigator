@@ -71,10 +71,12 @@
         return;
       }
 
-      if (event.key === "[") {
+      if (event.code === "BracketLeft") {
+        event.preventDefault();
         console.info("[content] detected Alt+[ hotkey");
         sendMessage({ type: "hotkey:back" }, "hotkey:back");
-      } else if (event.key === "]") {
+      } else if (event.code === "BracketRight") {
+        event.preventDefault();
         console.info("[content] detected Alt+] hotkey");
         sendMessage({ type: "hotkey:forward" }, "hotkey:forward");
       }
