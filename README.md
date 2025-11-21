@@ -1,6 +1,6 @@
 ﻿# Chrome Simple Navigator
 
-Welcome to **Chrome Simple Navigate**, a lightweight browser extension that enhances your browsing experience with intuitive keyboard shortcuts for seamless tab and history navigation.
+Welcome to **Chrome Simple Navigator**, a lightweight browser extension that enhances your browsing experience with intuitive keyboard shortcuts for seamless tab and history navigation.
 
 ## 🎯 Features
 
