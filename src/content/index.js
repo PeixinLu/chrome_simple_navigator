@@ -64,25 +64,27 @@
     }
   });
 
-  document.addEventListener(
-    "keydown",
-    (event) => {
-      if (!event.altKey || event.repeat) {
-        return;
-      }
+  // TODO: Remove this keyboard event listener - now handled by chrome.commands in manifest.json
+  // The background script receives commands via chrome.commands.onCommand listener
+  // document.addEventListener(
+  //   "keydown",
+  //   (event) => {
+  //     if (!event.altKey || event.repeat) {
+  //       return;
+  //     }
 
-      if (event.code === "BracketLeft") {
-        event.preventDefault();
-        console.info("[content] detected Alt+[ hotkey");
-        sendMessage({ type: "hotkey:back" }, "hotkey:back");
-      } else if (event.code === "BracketRight") {
-        event.preventDefault();
-        console.info("[content] detected Alt+] hotkey");
-        sendMessage({ type: "hotkey:forward" }, "hotkey:forward");
-      }
-    },
-    { capture: true }
-  );
+  //     if (event.code === "BracketLeft") {
+  //       event.preventDefault();
+  //       console.info("[content] detected Alt+[ hotkey");
+  //       sendMessage({ type: "hotkey:back" }, "hotkey:back");
+  //     } else if (event.code === "BracketRight") {
+  //       event.preventDefault();
+  //       console.info("[content] detected Alt+] hotkey");
+  //       sendMessage({ type: "hotkey:forward" }, "hotkey:forward");
+  //     }
+  //   },
+  //   { capture: true }
+  // );
 
   chrome.runtime.onMessage.addListener((message) => {
     if (message?.type === "ui:toast" && message.payload?.message) {

@@ -1,4 +1,4 @@
-﻿const MAX_NAV_LOGS = 20;
+const MAX_NAV_LOGS = 20;
 
 let navLogCounter = 0;
 
@@ -191,6 +191,7 @@ async function captureRouteStack(tabId) {
 }
 
 async function handleBackCommand(triggerLabel = 'Back command') {
+  flashBadge('◀');
   const tab = await getActiveTab();
   if (!tab?.id) {
     return;
@@ -254,6 +255,7 @@ async function handleBackCommand(triggerLabel = 'Back command') {
 }
 
 async function handleForwardCommand(triggerLabel = 'Forward command') {
+  flashBadge('▶');
   const tab = await getActiveTab();
   if (!tab?.id) {
     return;
@@ -305,14 +307,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       sendResponse({ ok: true, ...extensionState });
       break;
     }
-    case 'hotkey:back': {
-      handleBackCommand('Shortcut Back');
-      break;
-    }
-    case 'hotkey:forward': {
-      handleForwardCommand('Shortcut Forward');
-      break;
-    }
+    // TODO: Remove these message handlers - hotkeys are now handled by chrome.commands
+    // case 'hotkey:back': {
+    //   handleBackCommand('Shortcut Back');
+    //   break;
+    // }
+    // case 'hotkey:forward': {
+    //   handleForwardCommand('Shortcut Forward');
+    //   break;
+    // }
     case 'popup:clearLogs': {
       clearNavigationLogs();
       sendResponse({ ok: true, ...extensionState });
@@ -340,3 +343,22 @@ chrome.tabs.onRemoved.addListener((tabId) => {
   }
 });
 
+// 接收快捷键命令
+chrome.commands.onCommand.addListener(async (command) => {
+  if (command === "go-back-or-close") {
+    handleBackCommand('Shortcut Back');
+  }
+  if (command === "go-forward") {
+    handleForwardCommand('Shortcut Forward');
+  }
+});
+
+// 提醒方法
+function flashBadge(text) {
+  chrome.action.setBadgeText({ text });
+  chrome.action.setBadgeBackgroundColor({ color: "#4169e1" });
+
+  setTimeout(() => {
+    chrome.action.setBadgeText({ text: "" });
+  }, 800);
+}
