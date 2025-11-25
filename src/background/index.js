@@ -1,20 +1,30 @@
+// ============================================
+// 常量定义
+// ============================================
 const MAX_NAV_LOGS = 20;
+const CONFIRMATION_TIMEOUT_MS = 4000;
 
+// ============================================
+// 状态变量
+// ============================================
 let navLogCounter = 0;
 
 const extensionState = {
-  lastPing: null,
-  totalPings: 0,
   navigationLogs: [],
   loggingEnabled: true
 };
-const CONFIRMATION_TIMEOUT_MS = 4000;
+
 const pendingCloseTabs = new Map();
 const reopenedTabSources = new Map();
 let reopenPending = false;
 let reopenConfirmTimeoutId = null;
 let reopenPendingTabId = null;
 
+// ============================================
+// 工具函数 - UI反馈
+// ============================================
+
+// 广播状态到所有监听器（如popup、options页面）
 function broadcastStatus() {
   chrome.runtime.sendMessage(
     {
@@ -31,6 +41,20 @@ function broadcastStatus() {
   );
 }
 
+// 在扩展图标上短暂显示徽章文本（用于视觉反馈）
+function flashBadge(text) {
+  chrome.action.setBadgeText({ text });
+  chrome.action.setBadgeBackgroundColor({ color: "#4169e1" });
+  setTimeout(() => {
+    chrome.action.setBadgeText({ text: "" });
+  }, 800);
+}
+
+// ============================================
+// 工具函数 - 日志管理
+// ============================================
+
+// 添加导航日志记录，用于跟踪用户的导航操作历史
 function addNavigationLog(action, detail) {
   if (!extensionState.loggingEnabled) {
     return;
@@ -46,103 +70,17 @@ function addNavigationLog(action, detail) {
   broadcastStatus();
 }
 
+// 清空所有导航日志记录
 function clearNavigationLogs() {
   extensionState.navigationLogs = [];
   broadcastStatus();
 }
 
-function notifyUserInTab(tabId, message) {
-  if (!tabId) {
-    return;
-  }
-  chrome.tabs.sendMessage(
-    tabId,
-    { type: 'ui:toast', payload: { message } },
-    () => {
-      if (chrome.runtime.lastError) {
-        console.debug('[background] toast delivery failed', chrome.runtime.lastError.message);
-      }
-    }
-  );
-}
+// ============================================
+// 工具函数 - 标签页操作
+// ============================================
 
-function clearPendingClose(tabId) {
-  const timeoutId = pendingCloseTabs.get(tabId);
-  if (timeoutId) {
-    clearTimeout(timeoutId);
-  }
-  pendingCloseTabs.delete(tabId);
-}
-
-function setPendingClose(tabId) {
-  clearPendingClose(tabId);
-  const timeoutId = setTimeout(() => pendingCloseTabs.delete(tabId), CONFIRMATION_TIMEOUT_MS);
-  pendingCloseTabs.set(tabId, timeoutId);
-  notifyUserInTab(tabId, 'Repeat shortcut to close this tab');
-}
-
-function clearReopenPending() {
-  if (reopenConfirmTimeoutId) {
-    clearTimeout(reopenConfirmTimeoutId);
-  }
-  reopenPending = false;
-  reopenConfirmTimeoutId = null;
-  reopenPendingTabId = null;
-}
-
-function setReopenPending(tabId) {
-  clearReopenPending();
-  reopenPending = true;
-  reopenPendingTabId = tabId ?? null;
-  reopenConfirmTimeoutId = setTimeout(() => {
-    reopenPending = false;
-    reopenConfirmTimeoutId = null;
-    reopenPendingTabId = null;
-  }, CONFIRMATION_TIMEOUT_MS);
-  if (tabId) {
-    notifyUserInTab(tabId, 'Repeat shortcut to reopen last tab');
-  }
-}
-
-function execTabNavigation(method, tabId) {
-  return new Promise((resolve) => {
-    chrome.tabs[method](tabId, () => {
-      if (chrome.runtime.lastError) {
-        console.debug(`[background] ${method} unavailable`, chrome.runtime.lastError.message);
-        resolve(false);
-      } else {
-        resolve(true);
-      }
-    });
-  });
-}
-
-function closeTab(tabId) {
-  return new Promise((resolve) => {
-    chrome.tabs.remove(tabId, () => {
-      if (chrome.runtime.lastError) {
-        console.warn('[background] unable to close tab', chrome.runtime.lastError.message);
-      }
-      resolve();
-    });
-  });
-}
-
-function reopenLastClosedTab() {
-  return new Promise((resolve) => {
-    chrome.sessions.restore(undefined, (session) => {
-      if (chrome.runtime.lastError || !session) {
-        console.warn('[background] unable to restore last closed tab', chrome.runtime.lastError?.message);
-        resolve(null);
-      } else if (session.tab?.id) {
-        resolve(session.tab.id);
-      } else {
-        resolve(null);
-      }
-    });
-  });
-}
-
+// 获取当前窗口中的活动标签页
 function getActiveTab() {
   return new Promise((resolve) => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -151,6 +89,7 @@ function getActiveTab() {
   });
 }
 
+// 激活（切换到）指定的标签页
 function activateTab(tabId) {
   return new Promise((resolve) => {
     if (!tabId) {
@@ -173,6 +112,53 @@ function activateTab(tabId) {
   });
 }
 
+// 关闭指定的标签页
+function closeTab(tabId) {
+  return new Promise((resolve) => {
+    chrome.tabs.remove(tabId, () => {
+      if (chrome.runtime.lastError) {
+        console.warn('[background] unable to close tab', chrome.runtime.lastError.message);
+      }
+      resolve();
+    });
+  });
+}
+
+// 重新打开最后关闭的标签页
+function reopenLastClosedTab() {
+  return new Promise((resolve) => {
+    chrome.sessions.restore(undefined, (session) => {
+      if (chrome.runtime.lastError || !session) {
+        console.warn('[background] unable to restore last closed tab', chrome.runtime.lastError?.message);
+        resolve(null);
+      } else if (session.tab?.id) {
+        resolve(session.tab.id);
+      } else {
+        resolve(null);
+      }
+    });
+  });
+}
+
+// ============================================
+// 工具函数 - 导航操作
+// ============================================
+
+// 执行标签页导航操作（如后退、前进）
+function execTabNavigation(method, tabId) {
+  return new Promise((resolve) => {
+    chrome.tabs[method](tabId, () => {
+      if (chrome.runtime.lastError) {
+        console.debug(`[background] ${method} unavailable`, chrome.runtime.lastError.message);
+        resolve(false);
+      } else {
+        resolve(true);
+      }
+    });
+  });
+}
+
+// 捕获指定标签页的导航历史栈信息（历史记录长度、状态、当前URL）
 async function captureRouteStack(tabId) {
   try {
     const [result] = await chrome.scripting.executeScript({
@@ -190,6 +176,53 @@ async function captureRouteStack(tabId) {
   }
 }
 
+// ============================================
+// 工具函数 - 确认状态管理
+// ============================================
+
+// 清除标签页的待关闭状态（取消关闭确认）
+function clearPendingClose(tabId) {
+  const timeoutId = pendingCloseTabs.get(tabId);
+  if (timeoutId) {
+    clearTimeout(timeoutId);
+  }
+  pendingCloseTabs.delete(tabId);
+}
+
+// 设置标签页为待关闭状态（需要再次按快捷键确认关闭）
+function setPendingClose(tabId) {
+  clearPendingClose(tabId);
+  const timeoutId = setTimeout(() => pendingCloseTabs.delete(tabId), CONFIRMATION_TIMEOUT_MS);
+  pendingCloseTabs.set(tabId, timeoutId);
+}
+
+// 清除重新打开标签页的待确认状态
+function clearReopenPending() {
+  if (reopenConfirmTimeoutId) {
+    clearTimeout(reopenConfirmTimeoutId);
+  }
+  reopenPending = false;
+  reopenConfirmTimeoutId = null;
+  reopenPendingTabId = null;
+}
+
+// 设置重新打开标签页的待确认状态（需要再次按快捷键确认重新打开）
+function setReopenPending(tabId) {
+  clearReopenPending();
+  reopenPending = true;
+  reopenPendingTabId = tabId ?? null;
+  reopenConfirmTimeoutId = setTimeout(() => {
+    reopenPending = false;
+    reopenConfirmTimeoutId = null;
+    reopenPendingTabId = null;
+  }, CONFIRMATION_TIMEOUT_MS);
+}
+
+// ============================================
+// 核心命令处理器
+// ============================================
+
+// 处理后退命令：尝试后退导航，如果历史记录为空则提示关闭标签页
 async function handleBackCommand(triggerLabel = 'Back command') {
   flashBadge('◀');
   const tab = await getActiveTab();
@@ -200,8 +233,10 @@ async function handleBackCommand(triggerLabel = 'Back command') {
   const stack = await captureRouteStack(tab.id);
   console.debug('[background] route stack (back)', stack);
 
+  // 情况1：历史记录为空（只有一条记录）
   if (stack && stack.length <= 1) {
     if (pendingCloseTabs.has(tab.id)) {
+      // 确认关闭标签页
       console.info('[background] confirmed close for tab', tab.id);
       clearPendingClose(tab.id);
       const tabToClose = tab.id;
@@ -215,6 +250,7 @@ async function handleBackCommand(triggerLabel = 'Back command') {
       }
       addNavigationLog('close_tab', `${triggerLabel} → History exhausted, closing active tab`);
     } else {
+      // 等待确认关闭
       console.info('[background] history stack empty, awaiting confirmation to close', tab.id);
       addNavigationLog('await_close', `${triggerLabel} → History empty, waiting for confirmation to close`);
       setPendingClose(tab.id);
@@ -222,6 +258,7 @@ async function handleBackCommand(triggerLabel = 'Back command') {
     return;
   }
 
+  // 情况2：尝试后退导航
   const navigated = await execTabNavigation('goBack', tab.id);
   if (navigated) {
     clearPendingClose(tab.id);
@@ -229,31 +266,30 @@ async function handleBackCommand(triggerLabel = 'Back command') {
     return;
   }
 
-  if (pendingCloseTabs.has(tab.id) || !stack) {
-    if (pendingCloseTabs.has(tab.id)) {
-      console.info('[background] confirmed close for tab', tab.id);
-      clearPendingClose(tab.id);
-      const tabToClose = tab.id;
-      if (reopenedTabSources.has(tabToClose)) {
-        const sourceId = reopenedTabSources.get(tabToClose);
-        reopenedTabSources.delete(tabToClose);
-        await activateTab(sourceId);
-        await closeTab(tabToClose);
-      } else {
-        await closeTab(tabToClose);
-      }
-      addNavigationLog('close_tab', `${triggerLabel} → Confirmed tab close`);
+  // 情况3：后退失败，等待确认关闭
+  if (pendingCloseTabs.has(tab.id)) {
+    // 确认关闭标签页
+    console.info('[background] confirmed close for tab', tab.id);
+    clearPendingClose(tab.id);
+    const tabToClose = tab.id;
+    if (reopenedTabSources.has(tabToClose)) {
+      const sourceId = reopenedTabSources.get(tabToClose);
+      reopenedTabSources.delete(tabToClose);
+      await activateTab(sourceId);
+      await closeTab(tabToClose);
     } else {
-      console.info('[background] goBack failed without stack info, awaiting confirmation to close', tab.id);
-      addNavigationLog('await_close', `${triggerLabel} → Unable to go back, waiting for confirmation to close`);
-      setPendingClose(tab.id);
+      await closeTab(tabToClose);
     }
+    addNavigationLog('close_tab', `${triggerLabel} → Confirmed tab close`);
   } else {
-    addNavigationLog('await_close', `${triggerLabel} → Back navigation failed, waiting to confirm close`);
+    // 等待确认关闭
+    console.info('[background] goBack failed, awaiting confirmation to close', tab.id);
+    addNavigationLog('await_close', `${triggerLabel} → Unable to go back, waiting for confirmation to close`);
     setPendingClose(tab.id);
   }
 }
 
+// 处理前进命令：尝试前进导航，如果无法前进则提示重新打开最后关闭的标签页
 async function handleForwardCommand(triggerLabel = 'Forward command') {
   flashBadge('▶');
   const tab = await getActiveTab();
@@ -261,9 +297,7 @@ async function handleForwardCommand(triggerLabel = 'Forward command') {
     return;
   }
 
-  const stack = await captureRouteStack(tab.id);
-  console.debug('[background] route stack (forward)', stack);
-
+  // 尝试前进导航
   const navigated = await execTabNavigation('goForward', tab.id);
   if (navigated) {
     clearReopenPending();
@@ -271,7 +305,9 @@ async function handleForwardCommand(triggerLabel = 'Forward command') {
     return;
   }
 
+  // 前进失败，处理重新打开标签页逻辑
   if (reopenPending && reopenPendingTabId === tab.id) {
+    // 确认重新打开最后关闭的标签页
     console.info('[background] confirmed reopen last closed tab');
     clearReopenPending();
     const sourceTabId = tab.id;
@@ -281,46 +317,41 @@ async function handleForwardCommand(triggerLabel = 'Forward command') {
     }
     addNavigationLog('reopen_tab', `${triggerLabel} → Reopened the most recently closed tab`);
   } else {
+    // 等待确认重新打开
     console.info('[background] unable to go forward, awaiting confirmation to reopen last tab');
     addNavigationLog('await_reopen', `${triggerLabel} → Unable to go forward, waiting for confirmation to reopen last tab`);
     setReopenPending(tab.id);
   }
 }
 
+// ============================================
+// 事件监听器
+// ============================================
+
+// 监听扩展安装事件
 chrome.runtime.onInstalled.addListener((details) => {
   console.info('[background] extension installed', details);
-  extensionState.lastPing = Date.now();
-  broadcastStatus();
 });
 
+// 监听来自其他页面的消息（popup、content script等）
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (!message || !message.type) {
     return;
   }
 
   switch (message.type) {
+    // 响应ping请求，返回当前扩展状态
     case 'content:ping': {
-      extensionState.lastPing = Date.now();
-      extensionState.totalPings += 1;
-      console.debug('[background] received ping', sender.tab?.url);
-      broadcastStatus();
       sendResponse({ ok: true, ...extensionState });
       break;
     }
-    // TODO: Remove these message handlers - hotkeys are now handled by chrome.commands
-    // case 'hotkey:back': {
-    //   handleBackCommand('Shortcut Back');
-    //   break;
-    // }
-    // case 'hotkey:forward': {
-    //   handleForwardCommand('Shortcut Forward');
-    //   break;
-    // }
+    // 清空日志
     case 'popup:clearLogs': {
       clearNavigationLogs();
       sendResponse({ ok: true, ...extensionState });
       break;
     }
+    // 设置是否启用日志记录
     case 'popup:setLogging': {
       if (typeof message.payload?.enabled === 'boolean') {
         extensionState.loggingEnabled = message.payload.enabled;
@@ -335,6 +366,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 });
 
+// 监听标签页关闭事件，清理相关状态
 chrome.tabs.onRemoved.addListener((tabId) => {
   clearPendingClose(tabId);
   reopenedTabSources.delete(tabId);
@@ -343,22 +375,12 @@ chrome.tabs.onRemoved.addListener((tabId) => {
   }
 });
 
-// 接收快捷键命令
+// 监听快捷键命令
 chrome.commands.onCommand.addListener(async (command) => {
   if (command === "go-back-or-close") {
-    handleBackCommand('Shortcut Back');
+    await handleBackCommand('Shortcut Back');
   }
   if (command === "go-forward") {
-    handleForwardCommand('Shortcut Forward');
+    await handleForwardCommand('Shortcut Forward');
   }
 });
-
-// 提醒方法
-function flashBadge(text) {
-  chrome.action.setBadgeText({ text });
-  chrome.action.setBadgeBackgroundColor({ color: "#4169e1" });
-
-  setTimeout(() => {
-    chrome.action.setBadgeText({ text: "" });
-  }, 800);
-}

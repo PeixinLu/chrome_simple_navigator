@@ -1,7 +1,9 @@
-﻿const clearBtn = document.getElementById('clear');
+// DOM元素引用
+const clearBtn = document.getElementById('clear');
 const loggingToggle = document.getElementById('loggingToggle');
 const logListEl = document.getElementById('logList');
 
+// 操作类型的显示标签映射
 const ACTION_LABELS = {
   shortcut_back: 'Shortcut · Back',
   shortcut_forward: 'Shortcut · Forward',
@@ -13,6 +15,7 @@ const ACTION_LABELS = {
   reopen_tab: 'Reopen last tab'
 };
 
+// 格式化时间戳为可读时间
 function formatTime(timestamp) {
   if (!timestamp) {
     return 'Unknown time';
@@ -21,8 +24,10 @@ function formatTime(timestamp) {
   return date.toLocaleTimeString([], { hour12: false });
 }
 
+// 渲染日志列表到UI
 function renderLogs(logs, loggingEnabled) {
   logListEl.innerHTML = '';
+  // 如果日志功能被禁用
   if (!loggingEnabled) {
     const disabled = document.createElement('li');
     disabled.className = 'empty';
@@ -31,6 +36,7 @@ function renderLogs(logs, loggingEnabled) {
     return;
   }
 
+  // 如果没有日志记录
   if (!Array.isArray(logs) || logs.length === 0) {
     const empty = document.createElement('li');
     empty.className = 'empty';
@@ -39,6 +45,7 @@ function renderLogs(logs, loggingEnabled) {
     return;
   }
 
+  // 遍历并渲染每条日志
   logs.forEach((log) => {
     const item = document.createElement('li');
     item.className = 'log-item';
@@ -67,6 +74,7 @@ function renderLogs(logs, loggingEnabled) {
   });
 }
 
+// 更新UI状态
 function updateStatus(status) {
   const loggingEnabled = status?.loggingEnabled !== false;
   loggingToggle.checked = loggingEnabled;
@@ -74,6 +82,7 @@ function updateStatus(status) {
   renderLogs(status?.navigationLogs ?? [], loggingEnabled);
 }
 
+// 向后台请求当前状态
 function requestStatus() {
   chrome.runtime.sendMessage({ type: 'content:ping' }, (response) => {
     if (chrome.runtime.lastError) {
@@ -86,6 +95,7 @@ function requestStatus() {
   });
 }
 
+// 清空日志记录
 function clearLogs() {
   chrome.runtime.sendMessage({ type: 'popup:clearLogs' }, (response) => {
     if (chrome.runtime.lastError) {
@@ -98,6 +108,7 @@ function clearLogs() {
   });
 }
 
+// 设置日志记录开关
 function setLogging(enabled) {
   chrome.runtime.sendMessage({ type: 'popup:setLogging', payload: { enabled } }, (response) => {
     if (chrome.runtime.lastError) {
@@ -111,15 +122,18 @@ function setLogging(enabled) {
   });
 }
 
+// 绑定事件监听器
 clearBtn.addEventListener('click', clearLogs);
 loggingToggle.addEventListener('change', (event) => {
   setLogging(event.target.checked);
 });
 
+// 监听来自后台的状态更新广播
 chrome.runtime.onMessage.addListener((message) => {
   if (message?.type === 'background:status') {
     updateStatus(message.payload);
   }
 });
 
+// 页面加载时请求初始状态
 requestStatus();
