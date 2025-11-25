@@ -1,21 +1,30 @@
-﻿:root {
+:root {
   font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   color-scheme: light dark;
 }
 
-body {
+html, body {
   margin: 0;
   padding: 0;
+  width: 100%;
+  min-height: 40px;
+  overflow: hidden;
+}
+
+body {
   min-width: 240px;
   font-size: 12px;
   line-height: 1.4;
+  position: relative;
 }
 
 .popup {
   padding: 8px;
-  display: flex;
+  display: none; /* 默认隐藏，只在手动打开时显示 */
   flex-direction: column;
   gap: 8px;
+  position: relative;
+  min-height: 400px;
 }
 
 h1 {
@@ -192,3 +201,86 @@ button:disabled {
   background-color: rgba(37, 99, 235, 0.5);
   cursor: not-allowed;
 }
+
+/* 确认提示面板样式 - Toast通知风格（集成在popup内） */
+/* 确认提示面板样式 - Toast通知风格（集成在popup内） */
+.confirm-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.confirm-panel.hidden {
+  display: none;
+}
+
+.confirm-content {
+  text-align: center;
+  padding: 10px 16px;
+  padding-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.confirm-message {
+  margin: 0;
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: rgba(71, 85, 105, 0.95);
+  line-height: 1.3;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+}
+
+.confirm-hint {
+  margin: 0;
+  font-size: 0.65rem;
+  color: rgba(255, 255, 255, 0.7);
+  display: none; /* 隐藏提示文本以节省空间 */
+}
+
+.progress-bar {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: transparent;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.progress-fill {
+  height: 100%;
+  background: rgba(0, 0, 0, 0.06);
+  box-shadow: none;
+  transition: width 50ms linear;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+/* 后退操作：进度条从左向右 */
+.progress-fill.back {
+  left: 0;
+  right: auto;
+}
+
+/* 前进操作：进度条从右向左 */
+.progress-fill.forward {
+  left: auto;
+  right: 0;
+}
+
+

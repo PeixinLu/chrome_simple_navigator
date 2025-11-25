@@ -2,6 +2,19 @@
 const clearBtn = document.getElementById('clear');
 const loggingToggle = document.getElementById('loggingToggle');
 const logListEl = document.getElementById('logList');
+const confirmPanel = document.getElementById('confirmPanel');
+const confirmMessage = document.getElementById('confirmMessage');
+const progressFill = document.getElementById('progressFill');
+const mainContent = document.querySelector('.popup');
+
+// 倒计时相关变量
+let countdownTimer = null;
+let countdownStartTime = 0;
+const COUNTDOWN_DURATION = 1000; // 1秒倒计时
+
+// Toast状态变量
+let currentAction = null; // 'close' 或 'reopen'
+let isManualOpen = false; // 是否手动打开popup
 
 // 操作类型的显示标签映射
 const ACTION_LABELS = {
@@ -128,12 +141,140 @@ loggingToggle.addEventListener('change', (event) => {
   setLogging(event.target.checked);
 });
 
-// 监听来自后台的状态更新广播
+// 页面加载时请求初始状态
+requestStatus();
+
+// 检查popup打开方式：如果没有收到showCloseConfirm消息，说明是手动打开
+setTimeout(() => {
+  if (!currentAction) {
+    // 手动打开popup，显示日志面板
+    isManualOpen = true;
+    mainContent.style.display = 'flex';
+    confirmPanel.classList.add('hidden');
+  }
+}, 150); // 等待150ms，给background发送消息的时间
+
+// 显示确认提示面板
+function showConfirmPanel(action) {
+  // 清除之前的倒计时
+  if (countdownTimer) {
+    clearInterval(countdownTimer);
+  }
+
+  // 保存当前操作类型
+  currentAction = action;
+  isManualOpen = false; // 不是手动打开
+
+  // 设置提示消息
+  if (action === 'close') {
+    confirmMessage.textContent = 'Press back again to close tab';
+    // 后退：进度条从左向右
+    progressFill.classList.remove('forward');
+    progressFill.classList.add('back');
+  } else if (action === 'reopen') {
+    confirmMessage.textContent = 'Press forward again to reopen tab';
+    // 前进：进度条从右向左
+    progressFill.classList.remove('back');
+    progressFill.classList.add('forward');
+  }
+
+  // 隐藏日志面板，显示toast
+  mainContent.style.display = 'none';
+  confirmPanel.classList.remove('hidden');
+
+  // 开始倒计时动画
+  countdownStartTime = Date.now();
+  progressFill.style.width = '100%';
+
+  countdownTimer = setInterval(() => {
+    const elapsed = Date.now() - countdownStartTime;
+    const remaining = Math.max(0, COUNTDOWN_DURATION - elapsed);
+    const progress = (remaining / COUNTDOWN_DURATION) * 100;
+
+    progressFill.style.width = progress + '%';
+
+    if (remaining <= 0) {
+      hideConfirmPanel();
+      // 倒计时结束，关闭popup
+      window.close();
+    }
+  }, 50);
+}
+
+// 隐藏确认提示面板
+function hideConfirmPanel() {
+  if (countdownTimer) {
+    clearInterval(countdownTimer);
+    countdownTimer = null;
+  }
+  confirmPanel.classList.add('hidden');
+  mainContent.style.display = 'flex';
+  progressFill.style.width = '100%';
+  currentAction = null;
+}
+
+// 监听来自后台的确认提示消息
 chrome.runtime.onMessage.addListener((message) => {
+  if (message?.type === 'background:showCloseConfirm') {
+    showConfirmPanel(message.payload.action);
+  }
   if (message?.type === 'background:status') {
-    updateStatus(message.payload);
+    // 只在手动打开时更新状态
+    if (isManualOpen) {
+      updateStatus(message.payload);
+    }
   }
 });
 
-// 页面加载时请求初始状态
-requestStatus();
+// 监听键盘事件，接管前进后退快捷键
+document.addEventListener('keydown', async (event) => {
+  // 只在toast显示时处理
+  if (!currentAction) {
+    return;
+  }
+
+  // 检查是否是Command+Left (后退) 或 Command+Right (前进)
+  const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+  const isBack = isMac ? (event.metaKey && event.key === 'ArrowLeft') : (event.altKey && event.key === 'ArrowLeft');
+  const isForward = isMac ? (event.metaKey && event.key === 'ArrowRight') : (event.altKey && event.key === 'ArrowRight');
+
+  // 后退快捷键 + 当前是关闭确认状态
+  if (isBack && currentAction === 'close') {
+    event.preventDefault();
+    event.stopPropagation();
+    // 通知background执行关闭操作
+    chrome.runtime.sendMessage({ type: 'popup:confirmClose' });
+    window.close();
+    return;
+  }
+
+  // 前进快捷键 + 当前是重新打开确认状态
+  if (isForward && currentAction === 'reopen') {
+    event.preventDefault();
+    event.stopPropagation();
+    // 通知background执行重新打开操作
+    chrome.runtime.sendMessage({ type: 'popup:confirmReopen' });
+    window.close();
+    return;
+  }
+
+  // 反向操作：后退快捷键 + 当前是重新打开确认状态
+  if (isBack && currentAction === 'reopen') {
+    event.preventDefault();
+    event.stopPropagation();
+    // 取消操作，关闭toast
+    hideConfirmPanel();
+    window.close();
+    return;
+  }
+
+  // 反向操作：前进快捷键 + 当前是关闭确认状态
+  if (isForward && currentAction === 'close') {
+    event.preventDefault();
+    event.stopPropagation();
+    // 取消操作，关闭toast
+    hideConfirmPanel();
+    window.close();
+    return;
+  }
+}, true); // 使用capture阶段确保优先处理

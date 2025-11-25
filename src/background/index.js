@@ -2,7 +2,7 @@
 // 常量定义
 // ============================================
 const MAX_NAV_LOGS = 20;
-const CONFIRMATION_TIMEOUT_MS = 4000;
+const CONFIRMATION_TIMEOUT_MS = 1000;
 
 // ============================================
 // 状态变量
@@ -161,6 +161,13 @@ function execTabNavigation(method, tabId) {
 // 捕获指定标签页的导航历史栈信息（历史记录长度、状态、当前URL）
 async function captureRouteStack(tabId) {
   try {
+    // 检查标签页状态
+    const tab = await chrome.tabs.get(tabId);
+    if (!tab || tab.status === 'loading') {
+      console.debug('[background] tab is loading, skipping route stack capture');
+      return null;
+    }
+    
     const [result] = await chrome.scripting.executeScript({
       target: { tabId },
       func: () => ({
@@ -222,6 +229,46 @@ function setReopenPending(tabId) {
 // 核心命令处理器
 // ============================================
 
+// 处理popup确认关闭标签页
+async function handleConfirmClose() {
+  const tab = await getActiveTab();
+  if (!tab?.id) {
+    return;
+  }
+
+  console.info('[background] popup confirmed close for tab', tab.id);
+  clearPendingClose(tab.id);
+  const tabToClose = tab.id;
+
+  if (reopenedTabSources.has(tabToClose)) {
+    const sourceId = reopenedTabSources.get(tabToClose);
+    reopenedTabSources.delete(tabToClose);
+    await activateTab(sourceId);
+    await closeTab(tabToClose);
+  } else {
+    await closeTab(tabToClose);
+  }
+  addNavigationLog('close_tab', 'Popup confirmation → Closing active tab');
+}
+
+// 处理popup确认重新打开标签页
+async function handleConfirmReopen() {
+  const tab = await getActiveTab();
+  if (!tab?.id) {
+    return;
+  }
+
+  console.info('[background] popup confirmed reopen last closed tab');
+  clearReopenPending();
+
+  const sourceTabId = tab.id;
+  const reopenedTabId = await reopenLastClosedTab();
+  if (reopenedTabId) {
+    reopenedTabSources.set(reopenedTabId, sourceTabId);
+  }
+  addNavigationLog('reopen_tab', 'Popup confirmation → Reopened the most recently closed tab');
+}
+
 // 处理后退命令：尝试后退导航，如果历史记录为空则提示关闭标签页
 async function handleBackCommand(triggerLabel = 'Back command') {
   flashBadge('◀');
@@ -240,6 +287,12 @@ async function handleBackCommand(triggerLabel = 'Back command') {
       console.info('[background] confirmed close for tab', tab.id);
       clearPendingClose(tab.id);
       const tabToClose = tab.id;
+      // 关闭popup
+      try {
+        await chrome.action.closePopup?.();
+      } catch (error) {
+        console.debug('[background] popup may already be closed');
+      }
       if (reopenedTabSources.has(tabToClose)) {
         const sourceId = reopenedTabSources.get(tabToClose);
         reopenedTabSources.delete(tabToClose);
@@ -250,10 +303,27 @@ async function handleBackCommand(triggerLabel = 'Back command') {
       }
       addNavigationLog('close_tab', `${triggerLabel} → History exhausted, closing active tab`);
     } else {
-      // 等待确认关闭
+      // 等待确认关闭，打开popup显示Toast提示
       console.info('[background] history stack empty, awaiting confirmation to close', tab.id);
       addNavigationLog('await_close', `${triggerLabel} → History empty, waiting for confirmation to close`);
       setPendingClose(tab.id);
+      // 打开popup并通知显示Toast
+      try {
+        await chrome.action.openPopup();
+        // 等待popup加载后发送消息
+        setTimeout(() => {
+          chrome.runtime.sendMessage({
+            type: 'background:showCloseConfirm',
+            payload: { action: 'close', tabId: tab.id }
+          }, () => {
+            if (chrome.runtime.lastError) {
+              console.debug('[background] popup may not be ready');
+            }
+          });
+        }, 100);
+      } catch (error) {
+        console.warn('[background] failed to open popup', error);
+      }
     }
     return;
   }
@@ -272,6 +342,12 @@ async function handleBackCommand(triggerLabel = 'Back command') {
     console.info('[background] confirmed close for tab', tab.id);
     clearPendingClose(tab.id);
     const tabToClose = tab.id;
+    // 关闭popup
+    try {
+      await chrome.action.closePopup?.();
+    } catch (error) {
+      console.debug('[background] popup may already be closed');
+    }
     if (reopenedTabSources.has(tabToClose)) {
       const sourceId = reopenedTabSources.get(tabToClose);
       reopenedTabSources.delete(tabToClose);
@@ -282,10 +358,27 @@ async function handleBackCommand(triggerLabel = 'Back command') {
     }
     addNavigationLog('close_tab', `${triggerLabel} → Confirmed tab close`);
   } else {
-    // 等待确认关闭
+    // 等待确认关闭，打开popup显示Toast提示
     console.info('[background] goBack failed, awaiting confirmation to close', tab.id);
     addNavigationLog('await_close', `${triggerLabel} → Unable to go back, waiting for confirmation to close`);
     setPendingClose(tab.id);
+    // 打开popup并通知显示Toast
+    try {
+      await chrome.action.openPopup();
+      // 等待popup加载后发送消息
+      setTimeout(() => {
+        chrome.runtime.sendMessage({
+          type: 'background:showCloseConfirm',
+          payload: { action: 'close', tabId: tab.id }
+        }, () => {
+          if (chrome.runtime.lastError) {
+            console.debug('[background] popup may not be ready');
+          }
+        });
+      }, 100);
+    } catch (error) {
+      console.warn('[background] failed to open popup', error);
+    }
   }
 }
 
@@ -310,6 +403,12 @@ async function handleForwardCommand(triggerLabel = 'Forward command') {
     // 确认重新打开最后关闭的标签页
     console.info('[background] confirmed reopen last closed tab');
     clearReopenPending();
+    // 关闭popup
+    try {
+      await chrome.action.closePopup?.();
+    } catch (error) {
+      console.debug('[background] popup may already be closed');
+    }
     const sourceTabId = tab.id;
     const reopenedTabId = await reopenLastClosedTab();
     if (reopenedTabId) {
@@ -317,10 +416,27 @@ async function handleForwardCommand(triggerLabel = 'Forward command') {
     }
     addNavigationLog('reopen_tab', `${triggerLabel} → Reopened the most recently closed tab`);
   } else {
-    // 等待确认重新打开
+    // 等待确认重新打开，打开popup显示Toast提示
     console.info('[background] unable to go forward, awaiting confirmation to reopen last tab');
     addNavigationLog('await_reopen', `${triggerLabel} → Unable to go forward, waiting for confirmation to reopen last tab`);
     setReopenPending(tab.id);
+    // 打开popup并通知显示Toast
+    try {
+      await chrome.action.openPopup();
+      // 等待popup加载后发送消息
+      setTimeout(() => {
+        chrome.runtime.sendMessage({
+          type: 'background:showCloseConfirm',
+          payload: { action: 'reopen', tabId: tab.id }
+        }, () => {
+          if (chrome.runtime.lastError) {
+            console.debug('[background] popup may not be ready');
+          }
+        });
+      }, 100);
+    } catch (error) {
+      console.warn('[background] failed to open popup', error);
+    }
   }
 }
 
@@ -360,6 +476,16 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       }
       break;
     }
+    // Popup确认关闭标签页
+    case 'popup:confirmClose': {
+      handleConfirmClose();
+      break;
+    }
+    // Popup确认重新打开标签页
+    case 'popup:confirmReopen': {
+      handleConfirmReopen();
+      break;
+    }
     default: {
       console.warn('[background] unknown message type', message.type);
     }
@@ -382,5 +508,15 @@ chrome.commands.onCommand.addListener(async (command) => {
   }
   if (command === "go-forward") {
     await handleForwardCommand('Shortcut Forward');
+  }
+});
+
+// 监听扩展图标点击事件（用户手动打开popup）
+chrome.action.onClicked.addListener(async () => {
+  // 手动打开popup时，清除pending状态
+  const tab = await getActiveTab();
+  if (tab?.id) {
+    clearPendingClose(tab.id);
+    clearReopenPending();
   }
 });

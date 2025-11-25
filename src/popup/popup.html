@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -7,6 +7,16 @@
     <link rel="stylesheet" href="popup.css" />
   </head>
   <body>
+    <!-- 确认提示面板 -->
+    <div id="confirmPanel" class="confirm-panel hidden">
+      <div class="confirm-content">
+        <p id="confirmMessage" class="confirm-message"></p>
+      </div>
+      <div class="progress-bar">
+        <div id="progressFill" class="progress-fill"></div>
+      </div>
+    </div>
+
     <main class="popup">
       <header class="header">
         <h1>Navigation Log</h1>
