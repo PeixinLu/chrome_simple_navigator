@@ -4,6 +4,17 @@
 
 Welcome to **Chrome Simple Navigator**, a lightweight browser extension that enhances your browsing experience with **customizable keyboard shortcuts** for seamless **cross-tab** level `forward/backward` navigation experience.
 
+## Interface
+
+1. Settings
+   ![](https://zyxh-1317327611.cos.ap-guangzhou.myqcloud.com/ob/20251126145001.png)
+
+2. Navigation Log
+   ![](https://zyxh-1317327611.cos.ap-guangzhou.myqcloud.com/ob/20251126145125.png)
+
+3. Keyboard Shortcuts Configuration
+   ![](https://zyxh-1317327611.cos.ap-guangzhou.myqcloud.com/ob/20251126145234.png)
+
 ## 🎯 Features
 
 - **Smart Backward Navigation**: Press `Alt + Left` (Windows/Linux) or `Command + Left` (macOS) to navigate back in page history. If no history exists, a confirmation prompt will appear. Press the shortcut twice to close the current tab.

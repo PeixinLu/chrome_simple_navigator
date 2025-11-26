@@ -4,6 +4,14 @@
 
 欢迎使用 **Chrome Simple Navigator**，这是一款轻量级浏览器扩展，通过**可自定义的键盘快捷键**增强您的浏览体验，实现**跨标签页**级别的 `前进/后退` 导航体验。
 
+## 界面
+1. 设置
+   ![](https://zyxh-1317327611.cos.ap-guangzhou.myqcloud.com/ob/20251126145001.png)
+2. 日志统计
+   ![](https://zyxh-1317327611.cos.ap-guangzhou.myqcloud.com/ob/20251126145125.png)
+3. 快捷键配置
+   ![](https://zyxh-1317327611.cos.ap-guangzhou.myqcloud.com/ob/20251126145234.png)
+
 ## 🎯 功能特性
 
 - **智能后退导航**:按 `Alt + Left`(Windows/Linux)或 `Command + Left`(macOS)在页面历史中后退。如果没有历史记录,将出现确认提示。再次按快捷键可关闭当前标签页。

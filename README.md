@@ -6,6 +6,17 @@ Welcome to **Chrome Simple Navigator**, a lightweight browser extension that enh
 
 欢迎使用 **Chrome Simple Navigator**，这是一款轻量级浏览器扩展，通过**可自定义的键盘快捷键**增强您的浏览体验，实现**跨标签页**级别的 `前进/后退` 导航体验。
 
+## Interface / 界面
+
+1. Settings / 设置
+   ![](https://zyxh-1317327611.cos.ap-guangzhou.myqcloud.com/ob/20251126145001.png)
+
+2. Navigation Log / 导航日志
+   ![](https://zyxh-1317327611.cos.ap-guangzhou.myqcloud.com/ob/20251126145125.png)
+
+3. Keyboard Shortcuts Configuration / 快捷键配置
+   ![](https://zyxh-1317327611.cos.ap-guangzhou.myqcloud.com/ob/20251126145234.png)
+
 ## 🎯 Features / 功能特性
 
 - **Smart Backward Navigation**: Press `Alt + Left` (Windows/Linux) or `Command + Left` (macOS) to navigate back in page history. If no history exists, a confirmation prompt will appear. Press the shortcut twice to close the current tab.
