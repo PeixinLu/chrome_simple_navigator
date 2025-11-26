@@ -2,9 +2,9 @@
 
 **Languages / 语言选择:** [English](./README-EN.md) | [简体中文](./README-ZH-CN.md)
 
-Welcome to **Chrome Simple Navigator**, a lightweight browser extension that enhances your browsing experience with intuitive keyboard shortcuts for seamless tab and history navigation.
+Welcome to **Chrome Simple Navigator**, a lightweight browser extension that enhances your browsing experience with **customizable keyboard shortcuts** for seamless **cross-tab** level `forward/backward` navigation experience.
 
-欢迎使用 **Chrome Simple Navigator**，这是一款轻量级浏览器扩展，通过直观的键盘快捷键增强您的浏览体验，实现无缝的标签页和历史记录导航。
+欢迎使用 **Chrome Simple Navigator**，这是一款轻量级浏览器扩展，通过**可自定义的键盘快捷键**增强您的浏览体验，实现**跨标签页**级别的 `前进/后退` 导航体验。
 
 ## 🎯 Features / 功能特性
 
@@ -66,6 +66,8 @@ Welcome to **Chrome Simple Navigator**, a lightweight browser extension that enh
 
 ### Permissions / 权限说明
 
+The extension is completely offline and does not send any data to servers, ensuring privacy and security.
+插件完全离线，不会向任何服务器发送数据，确保隐私安全
 The extension requires the following permissions:
 
 扩展需要以下权限：
@@ -87,6 +89,10 @@ The extension requires the following permissions:
 - **`Alt + Right` / `Command + Right`**: Navigate forward in page history
   
   **前进导航**：在页面历史中前进
+
+- Keyboard shortcuts can be customized in the configuration
+  
+  - 可在配置中自定义键盘快捷键
 
 ### Advanced Usage / 高级用法
 
@@ -201,10 +207,6 @@ This extension uses Manifest V3 and doesn't require a build step. Simply load th
 
 ## ⚠️ Limitations / 限制
 
-- **System Pages**: Keyboard shortcuts do not work on Chrome internal pages (`chrome://*`, `chrome-extension://*`, etc.) due to browser security restrictions
-  
-  **系统页面**：由于浏览器安全限制，键盘快捷键无法在 Chrome 内部页面（`chrome://*`、`chrome-extension://*` 等）上工作
-
 - **Confirmation Timeout**: Confirmation prompts expire after the configured delay (default 1 second)
   
   **确认超时**：确认提示会在配置的延迟时间后过期（默认 1 秒）
@@ -212,10 +214,6 @@ This extension uses Manifest V3 and doesn't require a build step. Simply load th
 - **Single Session**: Tab restoration mapping is cleared when tabs are removed or the browser is restarted
   
   **单次会话**：当标签页被移除或浏览器重启时，标签页恢复映射会被清除
-
-- **Language Display**: The extension language is determined by your browser's language settings (English or Simplified Chinese)
-  
-  **语言显示**：扩展语言由浏览器的语言设置决定（英文或简体中文）
 
 ## 📝 License / 许可证
 

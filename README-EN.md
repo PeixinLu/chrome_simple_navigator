@@ -2,7 +2,7 @@
 
 **Languages:** [English](./README-EN.md) | [简体中文](./README-ZH-CN.md) | [Bilingual / 双语](./README.md)
 
-Welcome to **Chrome Simple Navigator**, a lightweight browser extension that enhances your browsing experience with intuitive keyboard shortcuts for seamless tab and history navigation.
+Welcome to **Chrome Simple Navigator**, a lightweight browser extension that enhances your browsing experience with **customizable keyboard shortcuts** for seamless **cross-tab** level `forward/backward` navigation experience.
 
 ## 🎯 Features
 
@@ -38,6 +38,7 @@ Welcome to **Chrome Simple Navigator**, a lightweight browser extension that enh
 
 ### Permissions
 
+The extension is completely offline and does not send any data to servers, ensuring privacy and security.
 The extension requires the following permissions:
 
 - `tabs` - To navigate browser history and manage tabs
@@ -53,6 +54,8 @@ The extension requires the following permissions:
 - **`Alt + Left` / `Command + Left`**: Navigate backward in page history
 
 - **`Alt + Right` / `Command + Right`**: Navigate forward in page history
+
+- Keyboard shortcuts can be customized in the configuration
 
 ### Advanced Usage
 
@@ -135,13 +138,9 @@ This extension uses Manifest V3 and doesn't require a build step. Simply load th
 
 ## ⚠️ Limitations
 
-- **System Pages**: Keyboard shortcuts do not work on Chrome internal pages (`chrome://*`, `chrome-extension://*`, etc.) due to browser security restrictions
-
 - **Confirmation Timeout**: Confirmation prompts expire after the configured delay (default 1 second)
 
 - **Single Session**: Tab restoration mapping is cleared when tabs are removed or the browser is restarted
-
-- **Language Display**: The extension language is determined by your browser's language settings (English or Simplified Chinese)
 
 ## 📝 License
 
