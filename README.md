@@ -39,10 +39,6 @@ Welcome to **Chrome Simple Navigator**, a lightweight browser extension that enh
   
   **多语言支持**：根据浏览器语言设置自动显示英文或简体中文。
 
-- **Works on Regular Web Pages**: Compatible with standard `http://` and `https://` pages (system pages like `chrome://` are not supported due to browser restrictions).
-  
-  **适用于常规网页**：兼容标准的 `http://` 和 `https://` 页面（由于浏览器限制，不支持 `chrome://` 等系统页面）。
-
 ## 🚀 Installation / 安装
 
 ### Manual Installation / 手动安装
@@ -204,9 +200,9 @@ This extension uses Manifest V3 and doesn't require a build step. Simply load th
    
    在开发者模式下加载扩展
 
-2. Navigate to any regular web page (not `chrome://` pages)
+2. Navigate to any regular web page
    
-   导航到任何常规网页（不是 `chrome://` 页面）
+   导航到任何常规网页
 
 3. Test keyboard shortcuts and verify navigation behavior
    
