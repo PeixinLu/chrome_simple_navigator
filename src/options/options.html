@@ -1,16 +1,91 @@
 <!doctype html>
-<!-- 扩展设置页面（当前为占位符，可根据需要添加扩展配置选项） -->
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Simple Navigator - Options</title>
+    <title>Simple Navigator - Settings</title>
     <link rel="stylesheet" href="options.css" />
   </head>
   <body>
     <main class="options">
-      <h1>Simple Navigator Options</h1>
-      <p>Configuration options will be added here in future versions.</p>
+      <header class="header">
+        <h1>Simple Navigator Settings</h1>
+        <p class="subtitle">Configure your navigation experience</p>
+      </header>
+
+      <section class="settings-section">
+        <h2>Tab Operations</h2>
+        <div class="setting-item">
+          <div class="setting-info">
+            <label for="enableTabClose">Enable tab close/reopen feature</label>
+            <p class="setting-description">Allow closing and reopening tabs with keyboard shortcuts</p>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="enableTabClose" checked />
+            <span class="switch-slider"></span>
+          </label>
+        </div>
+      </section>
+
+      <section class="settings-section">
+        <h2>Toast Notifications</h2>
+        <div class="setting-item">
+          <div class="setting-info">
+            <label for="enableToast">Show toast notifications</label>
+            <p class="setting-description">Display confirmation prompts before closing/reopening tabs</p>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="enableToast" checked />
+            <span class="switch-slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <label for="toastDelay">Toast delay: <span id="toastDelayValue">1.0</span>s</label>
+            <p class="setting-description">Duration for toast confirmation prompts</p>
+          </div>
+          <div class="slider-container">
+            <span class="slider-label">0.5s</span>
+            <input type="range" id="toastDelay" min="500" max="2000" step="100" value="1000" />
+            <span class="slider-label">2.0s</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="settings-section">
+        <h2>Keyboard Shortcuts</h2>
+        <div class="setting-item">
+          <div class="setting-info">
+            <label>Navigate & Close</label>
+            <p class="setting-description">Go back or close tab when history is exhausted</p>
+          </div>
+          <button class="shortcut-btn" id="openShortcutSettings">
+            Configure in Chrome
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M6 3L11 8L6 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+        <div class="setting-item">
+          <div class="setting-info">
+            <label>Navigate & Reopen</label>
+            <p class="setting-description">Go forward or reopen last closed tab when unavailable</p>
+          </div>
+          <button class="shortcut-btn" id="openShortcutSettings2">
+            Configure in Chrome
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M6 3L11 8L6 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <button class="btn-reset" id="resetBtn">Reset to Defaults</button>
+        <div class="save-indicator" id="saveIndicator">Settings saved automatically</div>
+      </footer>
     </main>
+    <script type="module" src="options.js"></script>
   </body>
 </html>

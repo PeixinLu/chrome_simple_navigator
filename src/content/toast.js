@@ -3,7 +3,7 @@
 
 let toastElement = null;
 let countdownTimer = null;
-const COUNTDOWN_DURATION = 1000; // 1秒倒计时
+let COUNTDOWN_DURATION = 1000; // 默认1秒倒计时，会根据设置动态调整
 
 // 创建Toast元素
 function createToast() {
@@ -84,10 +84,13 @@ function createToast() {
 }
 
 // 显示Toast通知
-function showToast(action) {
+function showToast(action, delay = 1000) {
   const toast = createToast();
   const message = document.getElementById('simple-navigator-toast-message');
   const progressFill = document.getElementById('simple-navigator-toast-progress');
+
+  // 更新倒计时时长
+  COUNTDOWN_DURATION = delay;
 
   // 清除之前的倒计时
   if (countdownTimer) {
@@ -139,7 +142,8 @@ function hideToast() {
 // 监听来自background的消息
 chrome.runtime.onMessage.addListener((message) => {
   if (message?.type === 'background:showCloseConfirm') {
-    showToast(message.payload.action);
+    const delay = message.payload.delay || 1000;
+    showToast(message.payload.action, delay);
   }
   if (message?.type === 'background:hideConfirm') {
     hideToast();

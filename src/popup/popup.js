@@ -6,11 +6,13 @@ const confirmPanel = document.getElementById('confirmPanel');
 const confirmMessage = document.getElementById('confirmMessage');
 const progressFill = document.getElementById('progressFill');
 const mainContent = document.querySelector('.popup');
+const settingsBtn = document.getElementById('settingsBtn');
+const usageText = document.getElementById('usageText');
 
 // 倒计时相关变量
 let countdownTimer = null;
 let countdownStartTime = 0;
-const COUNTDOWN_DURATION = 1000; // 1秒倒计时
+let COUNTDOWN_DURATION = 1000; // 默认1秒倒计时，会根据设置动态调整
 
 // Toast状态变量
 let currentAction = null; // 'close' 或 'reopen'
@@ -140,9 +142,15 @@ clearBtn.addEventListener('click', clearLogs);
 loggingToggle.addEventListener('change', (event) => {
   setLogging(event.target.checked);
 });
+settingsBtn.addEventListener('click', () => {
+  chrome.runtime.openOptionsPage();
+});
 
 // 页面加载时请求初始状态
 requestStatus();
+
+// 加载并显示快捷键配置
+loadShortcutKeys();
 
 // 检查popup打开方式：如果没有收到showCloseConfirm消息，说明是手动打开
 setTimeout(() => {
@@ -154,12 +162,48 @@ setTimeout(() => {
   }
 }, 150); // 等待150ms，给background发送消息的时间
 
+// 加载快捷键配置并更新显示文本
+function loadShortcutKeys() {
+  chrome.commands.getAll((commands) => {
+    const backCommand = commands.find(cmd => cmd.name === 'go-back-or-close');
+    const forwardCommand = commands.find(cmd => cmd.name === 'go-forward');
+
+    const backKey = backCommand?.shortcut || 'Alt+Left';
+    const forwardKey = forwardCommand?.shortcut || 'Alt+Right';
+
+    // 格式化显示
+    const backDisplay = formatShortcut(backKey);
+    const forwardDisplay = formatShortcut(forwardKey);
+
+    usageText.textContent = `Use ${backDisplay} for Back and ${forwardDisplay} for Forward. Repeat the command to close or reopen tabs when navigation is unavailable.`;
+  });
+}
+
+// 格式化快捷键显示
+function formatShortcut(shortcut) {
+  if (!shortcut) return 'Not set';
+
+  // 将Command转换为更友好的显示
+  return shortcut
+    .replace('Command', '⌘')
+    .replace('Ctrl', 'Ctrl')
+    .replace('Alt', 'Alt')
+    .replace('Shift', 'Shift')
+    .replace('Left', '←')
+    .replace('Right', '→')
+    .replace('Up', '↑')
+    .replace('Down', '↓');
+}
+
 // 显示确认提示面板
-function showConfirmPanel(action) {
+function showConfirmPanel(action, delay = 1000) {
   // 清除之前的倒计时
   if (countdownTimer) {
     clearInterval(countdownTimer);
   }
+
+  // 更新倒计时时长
+  COUNTDOWN_DURATION = delay;
 
   // 保存当前操作类型
   currentAction = action;
@@ -216,7 +260,8 @@ function hideConfirmPanel() {
 // 监听来自后台的确认提示消息
 chrome.runtime.onMessage.addListener((message) => {
   if (message?.type === 'background:showCloseConfirm') {
-    showConfirmPanel(message.payload.action);
+    const delay = message.payload.delay || 1000;
+    showConfirmPanel(message.payload.action, delay);
   }
   if (message?.type === 'background:status') {
     // 只在手动打开时更新状态
@@ -275,6 +320,5 @@ document.addEventListener('keydown', async (event) => {
     // 取消操作，关闭toast
     hideConfirmPanel();
     window.close();
-    return;
   }
 }, true); // 使用capture阶段确保优先处理

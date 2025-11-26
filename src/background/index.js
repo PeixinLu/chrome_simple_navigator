@@ -2,12 +2,19 @@
 // 常量定义
 // ============================================
 const MAX_NAV_LOGS = 20;
-const CONFIRMATION_TIMEOUT_MS = 1000;
+
+// 默认设置
+const DEFAULT_SETTINGS = {
+  enableTabClose: true,
+  enableToast: true,
+  toastDelay: 1000
+};
 
 // ============================================
 // 状态变量
 // ============================================
 let navLogCounter = 0;
+let currentSettings = { ...DEFAULT_SETTINGS }; // 当前设置
 
 const extensionState = {
   navigationLogs: [],
@@ -19,6 +26,32 @@ const reopenedTabSources = new Map();
 let reopenPending = false;
 let reopenConfirmTimeoutId = null;
 let reopenPendingTabId = null;
+
+// ============================================
+// 工具函数 - 设置管理
+// ============================================
+
+// 加载设置
+async function loadSettings() {
+  return new Promise((resolve) => {
+    chrome.storage.sync.get(DEFAULT_SETTINGS, (settings) => {
+      currentSettings = settings;
+      resolve(settings);
+    });
+  });
+}
+
+// 监听设置变化
+chrome.storage.onChanged.addListener((changes, areaName) => {
+  if (areaName === 'sync') {
+    for (let key in changes) {
+      if (key in currentSettings) {
+        currentSettings[key] = changes[key].newValue;
+      }
+    }
+    console.info('[background] settings updated', currentSettings);
+  }
+});
 
 // ============================================
 // 工具函数 - UI反馈
@@ -199,7 +232,7 @@ function clearPendingClose(tabId) {
 // 设置标签页为待关闭状态（需要再次按快捷键确认关闭）
 function setPendingClose(tabId) {
   clearPendingClose(tabId);
-  const timeoutId = setTimeout(() => pendingCloseTabs.delete(tabId), CONFIRMATION_TIMEOUT_MS);
+  const timeoutId = setTimeout(() => pendingCloseTabs.delete(tabId), currentSettings.toastDelay);
   pendingCloseTabs.set(tabId, timeoutId);
 }
 
@@ -222,7 +255,7 @@ function setReopenPending(tabId) {
     reopenPending = false;
     reopenConfirmTimeoutId = null;
     reopenPendingTabId = null;
-  }, CONFIRMATION_TIMEOUT_MS);
+  }, currentSettings.toastDelay);
 }
 
 // ============================================
@@ -284,6 +317,11 @@ async function handleBackCommand(triggerLabel = 'Back command') {
   if (stack && stack.length <= 1) {
     if (pendingCloseTabs.has(tab.id)) {
       // 确认关闭标签页
+      if (!currentSettings.enableTabClose) {
+        console.info('[background] tab close disabled in settings');
+        clearPendingClose(tab.id);
+        return;
+      }
       console.info('[background] confirmed close for tab', tab.id);
       clearPendingClose(tab.id);
       const tabToClose = tab.id;
@@ -303,26 +341,32 @@ async function handleBackCommand(triggerLabel = 'Back command') {
       }
       addNavigationLog('close_tab', `${triggerLabel} → History exhausted, closing active tab`);
     } else {
-      // 等待确认关闭，打开popup显示Toast提示
+      // 等待确认关闭
+      if (!currentSettings.enableTabClose) {
+        console.info('[background] tab close disabled in settings');
+        return;
+      }
       console.info('[background] history stack empty, awaiting confirmation to close', tab.id);
       addNavigationLog('await_close', `${triggerLabel} → History empty, waiting for confirmation to close`);
       setPendingClose(tab.id);
-      // 打开popup并通知显示Toast
-      try {
-        await chrome.action.openPopup();
-        // 等待popup加载后发送消息
-        setTimeout(() => {
-          chrome.runtime.sendMessage({
-            type: 'background:showCloseConfirm',
-            payload: { action: 'close', tabId: tab.id }
-          }, () => {
-            if (chrome.runtime.lastError) {
-              console.debug('[background] popup may not be ready');
-            }
-          });
-        }, 100);
-      } catch (error) {
-        console.warn('[background] failed to open popup', error);
+      // 如果启用toast，打开popup并通知显示Toast
+      if (currentSettings.enableToast) {
+        try {
+          await chrome.action.openPopup();
+          // 等待popup加载后发送消息
+          setTimeout(() => {
+            chrome.runtime.sendMessage({
+              type: 'background:showCloseConfirm',
+              payload: { action: 'close', tabId: tab.id, delay: currentSettings.toastDelay }
+            }, () => {
+              if (chrome.runtime.lastError) {
+                console.debug('[background] popup may not be ready');
+              }
+            });
+          }, 100);
+        } catch (error) {
+          console.warn('[background] failed to open popup', error);
+        }
       }
     }
     return;
@@ -339,6 +383,11 @@ async function handleBackCommand(triggerLabel = 'Back command') {
   // 情况3：后退失败，等待确认关闭
   if (pendingCloseTabs.has(tab.id)) {
     // 确认关闭标签页
+    if (!currentSettings.enableTabClose) {
+      console.info('[background] tab close disabled in settings');
+      clearPendingClose(tab.id);
+      return;
+    }
     console.info('[background] confirmed close for tab', tab.id);
     clearPendingClose(tab.id);
     const tabToClose = tab.id;
@@ -358,26 +407,32 @@ async function handleBackCommand(triggerLabel = 'Back command') {
     }
     addNavigationLog('close_tab', `${triggerLabel} → Confirmed tab close`);
   } else {
-    // 等待确认关闭，打开popup显示Toast提示
+    // 等待确认关闭
+    if (!currentSettings.enableTabClose) {
+      console.info('[background] tab close disabled in settings');
+      return;
+    }
     console.info('[background] goBack failed, awaiting confirmation to close', tab.id);
     addNavigationLog('await_close', `${triggerLabel} → Unable to go back, waiting for confirmation to close`);
     setPendingClose(tab.id);
-    // 打开popup并通知显示Toast
-    try {
-      await chrome.action.openPopup();
-      // 等待popup加载后发送消息
-      setTimeout(() => {
-        chrome.runtime.sendMessage({
-          type: 'background:showCloseConfirm',
-          payload: { action: 'close', tabId: tab.id }
-        }, () => {
-          if (chrome.runtime.lastError) {
-            console.debug('[background] popup may not be ready');
-          }
-        });
-      }, 100);
-    } catch (error) {
-      console.warn('[background] failed to open popup', error);
+    // 如果启用toast，打开popup并通知显示Toast
+    if (currentSettings.enableToast) {
+      try {
+        await chrome.action.openPopup();
+        // 等待popup加载后发送消息
+        setTimeout(() => {
+          chrome.runtime.sendMessage({
+            type: 'background:showCloseConfirm',
+            payload: { action: 'close', tabId: tab.id, delay: currentSettings.toastDelay }
+          }, () => {
+            if (chrome.runtime.lastError) {
+              console.debug('[background] popup may not be ready');
+            }
+          });
+        }, 100);
+      } catch (error) {
+        console.warn('[background] failed to open popup', error);
+      }
     }
   }
 }
@@ -401,6 +456,11 @@ async function handleForwardCommand(triggerLabel = 'Forward command') {
   // 前进失败，处理重新打开标签页逻辑
   if (reopenPending && reopenPendingTabId === tab.id) {
     // 确认重新打开最后关闭的标签页
+    if (!currentSettings.enableTabClose) {
+      console.info('[background] tab reopen disabled in settings');
+      clearReopenPending();
+      return;
+    }
     console.info('[background] confirmed reopen last closed tab');
     clearReopenPending();
     // 关闭popup
@@ -416,26 +476,32 @@ async function handleForwardCommand(triggerLabel = 'Forward command') {
     }
     addNavigationLog('reopen_tab', `${triggerLabel} → Reopened the most recently closed tab`);
   } else {
-    // 等待确认重新打开，打开popup显示Toast提示
+    // 等待确认重新打开
+    if (!currentSettings.enableTabClose) {
+      console.info('[background] tab reopen disabled in settings');
+      return;
+    }
     console.info('[background] unable to go forward, awaiting confirmation to reopen last tab');
     addNavigationLog('await_reopen', `${triggerLabel} → Unable to go forward, waiting for confirmation to reopen last tab`);
     setReopenPending(tab.id);
-    // 打开popup并通知显示Toast
-    try {
-      await chrome.action.openPopup();
-      // 等待popup加载后发送消息
-      setTimeout(() => {
-        chrome.runtime.sendMessage({
-          type: 'background:showCloseConfirm',
-          payload: { action: 'reopen', tabId: tab.id }
-        }, () => {
-          if (chrome.runtime.lastError) {
-            console.debug('[background] popup may not be ready');
-          }
-        });
-      }, 100);
-    } catch (error) {
-      console.warn('[background] failed to open popup', error);
+    // 如果启用toast，打开popup并通知显示Toast
+    if (currentSettings.enableToast) {
+      try {
+        await chrome.action.openPopup();
+        // 等待popup加载后发送消息
+        setTimeout(() => {
+          chrome.runtime.sendMessage({
+            type: 'background:showCloseConfirm',
+            payload: { action: 'reopen', tabId: tab.id, delay: currentSettings.toastDelay }
+          }, () => {
+            if (chrome.runtime.lastError) {
+              console.debug('[background] popup may not be ready');
+            }
+          });
+        }, 100);
+      } catch (error) {
+        console.warn('[background] failed to open popup', error);
+      }
     }
   }
 }
@@ -447,6 +513,8 @@ async function handleForwardCommand(triggerLabel = 'Forward command') {
 // 监听扩展安装事件
 chrome.runtime.onInstalled.addListener((details) => {
   console.info('[background] extension installed', details);
+  // 初始化加载设置
+  loadSettings();
 });
 
 // 监听来自其他页面的消息（popup、content script等）
@@ -520,3 +588,6 @@ chrome.action.onClicked.addListener(async () => {
     clearReopenPending();
   }
 });
+
+// 初始化：加载设置
+loadSettings();
