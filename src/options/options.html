@@ -9,16 +9,16 @@
   <body>
     <main class="options">
       <header class="header">
-        <h1>Simple Navigator Settings</h1>
-        <p class="subtitle">Configure your navigation experience</p>
+        <h1 data-i18n="settingsTitle">Simple Navigator Settings</h1>
+        <p class="subtitle" data-i18n="settingsSubtitle">Configure your navigation experience</p>
       </header>
 
       <section class="settings-section">
-        <h2>Tab Operations</h2>
+        <h2 data-i18n="sectionTabOps">Tab Operations</h2>
         <div class="setting-item">
           <div class="setting-info">
-            <label for="enableTabClose">Enable tab close/reopen feature</label>
-            <p class="setting-description">Allow closing and reopening tabs with keyboard shortcuts</p>
+            <label for="enableTabClose" data-i18n="enableTabCloseLabel">Enable tab close/reopen feature</label>
+            <p class="setting-description" data-i18n="enableTabCloseDesc">Allow closing and reopening tabs with keyboard shortcuts</p>
           </div>
           <label class="switch">
             <input type="checkbox" id="enableTabClose" checked />
@@ -28,11 +28,11 @@
       </section>
 
       <section class="settings-section">
-        <h2>Toast Notifications</h2>
+        <h2 data-i18n="sectionToast">Toast Notifications</h2>
         <div class="setting-item">
           <div class="setting-info">
-            <label for="enableToast">Show toast notifications</label>
-            <p class="setting-description">Display confirmation prompts before closing/reopening tabs</p>
+            <label for="enableToast" data-i18n="enableToastLabel">Show toast notifications</label>
+            <p class="setting-description" data-i18n="enableToastDesc">Display confirmation prompts before closing/reopening tabs</p>
           </div>
           <label class="switch">
             <input type="checkbox" id="enableToast" checked />
@@ -42,8 +42,8 @@
 
         <div class="setting-item">
           <div class="setting-info">
-            <label for="toastDelay">Toast delay: <span id="toastDelayValue">1.0</span>s</label>
-            <p class="setting-description">Duration for toast confirmation prompts</p>
+            <label for="toastDelay"><span id="toastDelayLabel"></span></label>
+            <p class="setting-description" data-i18n="toastDelayDesc">Duration for toast confirmation prompts</p>
           </div>
           <div class="slider-container">
             <span class="slider-label">0.5s</span>
@@ -54,14 +54,14 @@
       </section>
 
       <section class="settings-section">
-        <h2>Keyboard Shortcuts</h2>
+        <h2 data-i18n="sectionShortcuts">Keyboard Shortcuts</h2>
         <div class="setting-item">
           <div class="setting-info">
-            <label>Navigate & Close</label>
-            <p class="setting-description">Go back or close tab when history is exhausted</p>
+            <label data-i18n="shortcutNavCloseLabel">Navigate & Close</label>
+            <p class="setting-description" data-i18n="shortcutNavCloseDesc">Go back or close tab when history is exhausted</p>
           </div>
           <button class="shortcut-btn" id="openShortcutSettings">
-            Configure in Chrome
+            <span data-i18n="shortcutConfigBtn">Configure in Chrome</span>
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M6 3L11 8L6 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
@@ -69,11 +69,11 @@
         </div>
         <div class="setting-item">
           <div class="setting-info">
-            <label>Navigate & Reopen</label>
-            <p class="setting-description">Go forward or reopen last closed tab when unavailable</p>
+            <label data-i18n="shortcutNavReopenLabel">Navigate & Reopen</label>
+            <p class="setting-description" data-i18n="shortcutNavReopenDesc">Go forward or reopen last closed tab when unavailable</p>
           </div>
           <button class="shortcut-btn" id="openShortcutSettings2">
-            Configure in Chrome
+            <span data-i18n="shortcutConfigBtn">Configure in Chrome</span>
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M6 3L11 8L6 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
@@ -82,8 +82,8 @@
       </section>
 
       <footer class="footer">
-        <button class="btn-reset" id="resetBtn">Reset to Defaults</button>
-        <div class="save-indicator" id="saveIndicator">Settings saved automatically</div>
+        <button class="btn-reset" id="resetBtn" data-i18n="resetBtn">Reset to Defaults</button>
+        <div class="save-indicator" id="saveIndicator" data-i18n="saveIndicator">Settings saved automatically</div>
       </footer>
     </main>
     <script type="module" src="options.js"></script>

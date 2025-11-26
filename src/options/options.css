@@ -309,3 +309,32 @@ input[type="range"]:disabled::-moz-range-thumb:hover {
   font-size: 12px;
   font-weight: bold;
 }
+
+/* Language Selector */
+.language-select {
+  padding: 8px 32px 8px 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  appearance: none;
+  background-image: url('data:image/svg+xml;charset=UTF-8,<svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1.5L6 6.5L11 1.5" stroke="%23475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  min-width: 150px;
+}
+
+.language-select:hover {
+  border-color: #cbd5e1;
+  background-color: #f1f5f9;
+}
+
+.language-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}

@@ -9,10 +9,42 @@ const DEFAULT_SETTINGS = {
 const enableTabCloseCheckbox = document.getElementById('enableTabClose');
 const enableToastCheckbox = document.getElementById('enableToast');
 const toastDelaySlider = document.getElementById('toastDelay');
-const toastDelayValue = document.getElementById('toastDelayValue');
 const resetBtn = document.getElementById('resetBtn');
 const saveIndicator = document.getElementById('saveIndicator');
 const shortcutBtns = document.querySelectorAll('.shortcut-btn');
+
+// 初始化i18n
+function initI18n() {
+  // 处理所有带 data-i18n 属性的元素
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    const message = chrome.i18n.getMessage(key);
+    if (message) {
+      el.textContent = message;
+    }
+  });
+
+  // 处理 title 属性
+  document.querySelectorAll('[data-i18n-title]').forEach(el => {
+    const key = el.getAttribute('data-i18n-title');
+    const message = chrome.i18n.getMessage(key);
+    if (message) {
+      el.setAttribute('title', message);
+    }
+  });
+
+  // 更新页面标题
+  document.title = chrome.i18n.getMessage('settingsTitle');
+}
+
+// 更新Toast延迟标签
+function updateToastDelayLabel() {
+  const delay = (toastDelaySlider.value / 1000).toFixed(1);
+  const label = document.getElementById('toastDelayLabel');
+  if (label) {
+    label.textContent = chrome.i18n.getMessage('toastDelayLabel', [delay]);
+  }
+}
 
 // 从存储中加载设置
 function loadSettings() {
@@ -46,7 +78,7 @@ function showSaveIndicator() {
 
 // 更新Toast延迟显示值
 function updateToastDelayDisplay(value) {
-  toastDelayValue.textContent = (value / 1000).toFixed(1);
+  updateToastDelayLabel();
 }
 
 // 更新Toast设置的启用/禁用状态
@@ -68,7 +100,8 @@ function updateToastSettingsState(tabCloseEnabled) {
 
 // 重置为默认设置
 function resetToDefaults() {
-  if (!confirm('Are you sure you want to reset all settings to defaults?')) {
+  const confirmMsg = chrome.i18n.getMessage('resetConfirm');
+  if (!confirm(confirmMsg)) {
     return;
   }
   
@@ -117,4 +150,6 @@ shortcutBtns.forEach(btn => {
 });
 
 // 页面加载时加载设置
+initI18n();
+updateToastDelayLabel(); // 初始化延迟标签
 loadSettings();

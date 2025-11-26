@@ -1,11 +1,12 @@
 ﻿{
   "manifest_version": 3,
-  "name": "Simple Navigator",
-  "description": "a lightweight browser extension that enhances your browsing experience with intuitive keyboard shortcuts for seamless tab and history navigation.",
+  "name": "__MSG_extName__",
+  "description": "__MSG_extDescription__",
   "version": "0.1.0",
+  "default_locale": "en",
   "action": {
     "default_popup": "src/popup/popup.html",
-    "default_title": "Simple Navigator",
+    "default_title": "__MSG_extActionTitle__",
     "default_icon": {
       "16": "assets/icons/icon16.png",
       "32": "assets/icons/icon32.png"
@@ -38,14 +39,14 @@
         "default": "Alt+Left",
         "mac": "Command+Left"
       },
-      "description": "Back or close tab"
+      "description": "__MSG_commandBackOrClose__"
     },
     "go-forward": {
       "suggested_key": {
         "default": "Alt+Right",
         "mac": "Command+Right"
       },
-      "description": "Forward"
+      "description": "__MSG_commandForward__"
     }
   }
 }

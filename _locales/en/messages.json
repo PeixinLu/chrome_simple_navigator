@@ -1,0 +1,206 @@
+{
+  "extName": {
+    "message": "Simple Navigator",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "A lightweight browser extension that enhances your browsing experience with intuitive keyboard shortcuts for seamless tab and history navigation.",
+    "description": "Extension description"
+  },
+  "extActionTitle": {
+    "message": "Simple Navigator",
+    "description": "Extension action title"
+  },
+  "commandBackOrClose": {
+    "message": "Back or close tab",
+    "description": "Command description for go-back-or-close"
+  },
+  "commandForward": {
+    "message": "Forward",
+    "description": "Command description for go-forward"
+  },
+  "settingsTitle": {
+    "message": "Simple Navigator Settings",
+    "description": "Settings page title"
+  },
+  "settingsSubtitle": {
+    "message": "Configure your navigation experience",
+    "description": "Settings page subtitle"
+  },
+  "sectionTabOps": {
+    "message": "Tab Operations",
+    "description": "Section: Tab Operations"
+  },
+  "enableTabCloseLabel": {
+    "message": "Enable tab close/reopen feature",
+    "description": "Label for enable tab close checkbox"
+  },
+  "enableTabCloseDesc": {
+    "message": "Allow closing and reopening tabs with keyboard shortcuts",
+    "description": "Description for enable tab close"
+  },
+  "sectionToast": {
+    "message": "Toast Notifications",
+    "description": "Section: Toast Notifications"
+  },
+  "enableToastLabel": {
+    "message": "Show toast notifications",
+    "description": "Label for enable toast checkbox"
+  },
+  "enableToastDesc": {
+    "message": "Display confirmation prompts before closing/reopening tabs",
+    "description": "Description for enable toast"
+  },
+  "toastDelayLabel": {
+    "message": "Toast delay: $DELAY$s",
+    "description": "Label for toast delay slider",
+    "placeholders": {
+      "delay": {
+        "content": "$1",
+        "example": "1.0"
+      }
+    }
+  },
+  "toastDelayDesc": {
+    "message": "Duration for toast confirmation prompts",
+    "description": "Description for toast delay"
+  },
+  "sectionShortcuts": {
+    "message": "Keyboard Shortcuts",
+    "description": "Section: Keyboard Shortcuts"
+  },
+  "shortcutNavCloseLabel": {
+    "message": "Navigate & Close",
+    "description": "Label for navigate and close shortcut"
+  },
+  "shortcutNavCloseDesc": {
+    "message": "Go back or close tab when history is exhausted",
+    "description": "Description for navigate and close"
+  },
+  "shortcutNavReopenLabel": {
+    "message": "Navigate & Reopen",
+    "description": "Label for navigate and reopen shortcut"
+  },
+  "shortcutNavReopenDesc": {
+    "message": "Go forward or reopen last closed tab when unavailable",
+    "description": "Description for navigate and reopen"
+  },
+  "shortcutConfigBtn": {
+    "message": "Configure in Chrome",
+    "description": "Button text to open Chrome shortcut settings"
+  },
+  "resetBtn": {
+    "message": "Reset to Defaults",
+    "description": "Reset button text"
+  },
+  "resetConfirm": {
+    "message": "Are you sure you want to reset all settings to defaults?",
+    "description": "Reset confirmation message"
+  },
+  "saveIndicator": {
+    "message": "Settings saved automatically",
+    "description": "Save indicator text"
+  },
+  "sectionLanguage": {
+    "message": "Language",
+    "description": "Section: Language"
+  },
+  "languageLabel": {
+    "message": "Display Language",
+    "description": "Label for language selector"
+  },
+  "languageDesc": {
+    "message": "Choose your preferred language (requires reload)",
+    "description": "Description for language selector"
+  },
+  "languageEn": {
+    "message": "English",
+    "description": "English language option"
+  },
+  "languageZh": {
+    "message": "简体中文",
+    "description": "Simplified Chinese language option"
+  },
+  "popupTitle": {
+    "message": "Navigation Log",
+    "description": "Popup title"
+  },
+  "popupUsage": {
+    "message": "Use $BACK$ for Back and $FORWARD$ for Forward. Repeat the command to close or reopen tabs when navigation is unavailable.",
+    "description": "Popup usage text",
+    "placeholders": {
+      "back": {
+        "content": "$1",
+        "example": "Alt+Left"
+      },
+      "forward": {
+        "content": "$2",
+        "example": "Alt+Right"
+      }
+    }
+  },
+  "logHint": {
+    "message": "Recent 20 entries. URLs and titles are never stored.",
+    "description": "Log hint text"
+  },
+  "loggingToggleLabel": {
+    "message": "Enable logging",
+    "description": "Logging toggle label"
+  },
+  "clearBtn": {
+    "message": "Clear",
+    "description": "Clear button text"
+  },
+  "logEmpty": {
+    "message": "No entries yet",
+    "description": "Empty log message"
+  },
+  "logDisabled": {
+    "message": "Logging disabled",
+    "description": "Logging disabled message"
+  },
+  "toastCloseMsg": {
+    "message": "Press back again to close this tab",
+    "description": "Toast message for close confirmation"
+  },
+  "toastReopenMsg": {
+    "message": "Press forward again to reopen last tab",
+    "description": "Toast message for reopen confirmation"
+  },
+  "actionShortcutBack": {
+    "message": "Shortcut · Back",
+    "description": "Action label: Shortcut Back"
+  },
+  "actionShortcutForward": {
+    "message": "Shortcut · Forward",
+    "description": "Action label: Shortcut Forward"
+  },
+  "actionBack": {
+    "message": "Browser back",
+    "description": "Action label: Browser back"
+  },
+  "actionForward": {
+    "message": "Browser forward",
+    "description": "Action label: Browser forward"
+  },
+  "actionAwaitClose": {
+    "message": "Await close confirmation",
+    "description": "Action label: Await close confirmation"
+  },
+  "actionCloseTab": {
+    "message": "Close tab",
+    "description": "Action label: Close tab"
+  },
+  "actionAwaitReopen": {
+    "message": "Await reopen confirmation",
+    "description": "Action label: Await reopen confirmation"
+  },
+  "actionReopenTab": {
+    "message": "Reopen last tab",
+    "description": "Action label: Reopen last tab"
+  },
+  "settingsBtnTitle": {
+    "message": "Settings",
+    "description": "Settings button title"
+  }
+}

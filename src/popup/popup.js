@@ -20,14 +20,14 @@ let isManualOpen = false; // 是否手动打开popup
 
 // 操作类型的显示标签映射
 const ACTION_LABELS = {
-  shortcut_back: 'Shortcut · Back',
-  shortcut_forward: 'Shortcut · Forward',
-  back: 'Browser back',
-  forward: 'Browser forward',
-  await_close: 'Await close confirmation',
-  close_tab: 'Close tab',
-  await_reopen: 'Await reopen confirmation',
-  reopen_tab: 'Reopen last tab'
+  shortcut_back: chrome.i18n.getMessage('actionShortcutBack'),
+  shortcut_forward: chrome.i18n.getMessage('actionShortcutForward'),
+  back: chrome.i18n.getMessage('actionBack'),
+  forward: chrome.i18n.getMessage('actionForward'),
+  await_close: chrome.i18n.getMessage('actionAwaitClose'),
+  close_tab: chrome.i18n.getMessage('actionCloseTab'),
+  await_reopen: chrome.i18n.getMessage('actionAwaitReopen'),
+  reopen_tab: chrome.i18n.getMessage('actionReopenTab')
 };
 
 // 格式化时间戳为可读时间
@@ -46,7 +46,7 @@ function renderLogs(logs, loggingEnabled) {
   if (!loggingEnabled) {
     const disabled = document.createElement('li');
     disabled.className = 'empty';
-    disabled.textContent = 'Logging disabled';
+    disabled.textContent = chrome.i18n.getMessage('logDisabled');
     logListEl.appendChild(disabled);
     return;
   }
@@ -55,7 +55,7 @@ function renderLogs(logs, loggingEnabled) {
   if (!Array.isArray(logs) || logs.length === 0) {
     const empty = document.createElement('li');
     empty.className = 'empty';
-    empty.textContent = 'No entries yet';
+    empty.textContent = chrome.i18n.getMessage('logEmpty');
     logListEl.appendChild(empty);
     return;
   }
@@ -146,7 +146,32 @@ settingsBtn.addEventListener('click', () => {
   chrome.runtime.openOptionsPage();
 });
 
+// 初始化i18n
+function initI18n() {
+  // 处理所有带 data-i18n 属性的元素
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    const message = chrome.i18n.getMessage(key);
+    if (message) {
+      el.textContent = message;
+    }
+  });
+
+  // 处理 title 属性
+  document.querySelectorAll('[data-i18n-title]').forEach(el => {
+    const key = el.getAttribute('data-i18n-title');
+    const message = chrome.i18n.getMessage(key);
+    if (message) {
+      el.setAttribute('title', message);
+    }
+  });
+
+  // 更新页面标题
+  document.title = chrome.i18n.getMessage('popupTitle');
+}
+
 // 页面加载时请求初始状态
+initI18n();
 requestStatus();
 
 // 加载并显示快捷键配置
@@ -175,7 +200,7 @@ function loadShortcutKeys() {
     const backDisplay = formatShortcut(backKey);
     const forwardDisplay = formatShortcut(forwardKey);
 
-    usageText.textContent = `Use ${backDisplay} for Back and ${forwardDisplay} for Forward. Repeat the command to close or reopen tabs when navigation is unavailable.`;
+    usageText.textContent = chrome.i18n.getMessage('popupUsage', [backDisplay, forwardDisplay]);
   });
 }
 
@@ -211,12 +236,12 @@ function showConfirmPanel(action, delay = 1000) {
 
   // 设置提示消息
   if (action === 'close') {
-    confirmMessage.textContent = 'Press back again to close tab';
+    confirmMessage.textContent = chrome.i18n.getMessage('toastCloseMsg');
     // 后退：进度条从左向右
     progressFill.classList.remove('forward');
     progressFill.classList.add('back');
   } else if (action === 'reopen') {
-    confirmMessage.textContent = 'Press forward again to reopen tab';
+    confirmMessage.textContent = chrome.i18n.getMessage('toastReopenMsg');
     // 前进：进度条从右向左
     progressFill.classList.remove('back');
     progressFill.classList.add('forward');

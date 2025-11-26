@@ -1,0 +1,206 @@
+{
+  "extName": {
+    "message": "简易导航器",
+    "description": "扩展名称"
+  },
+  "extDescription": {
+    "message": "一款轻量级浏览器扩展，通过直观的键盘快捷键增强您的浏览体验，实现无缝的标签页和历史记录导航。",
+    "description": "扩展描述"
+  },
+  "extActionTitle": {
+    "message": "简易导航器",
+    "description": "扩展操作标题"
+  },
+  "commandBackOrClose": {
+    "message": "后退或关闭标签页",
+    "description": "后退或关闭命令描述"
+  },
+  "commandForward": {
+    "message": "前进",
+    "description": "前进命令描述"
+  },
+  "settingsTitle": {
+    "message": "简易导航器设置",
+    "description": "设置页面标题"
+  },
+  "settingsSubtitle": {
+    "message": "配置您的导航体验",
+    "description": "设置页面副标题"
+  },
+  "sectionTabOps": {
+    "message": "标签页操作",
+    "description": "标签页操作部分"
+  },
+  "enableTabCloseLabel": {
+    "message": "启用标签页关闭/重新打开功能",
+    "description": "启用标签页关闭复选框标签"
+  },
+  "enableTabCloseDesc": {
+    "message": "允许使用键盘快捷键关闭和重新打开标签页",
+    "description": "启用标签页关闭描述"
+  },
+  "sectionToast": {
+    "message": "弹窗通知",
+    "description": "弹窗通知部分"
+  },
+  "enableToastLabel": {
+    "message": "显示弹窗通知",
+    "description": "启用弹窗复选框标签"
+  },
+  "enableToastDesc": {
+    "message": "在关闭/重新打开标签页前显示确认提示",
+    "description": "启用弹窗描述"
+  },
+  "toastDelayLabel": {
+    "message": "弹窗延迟：$DELAY$秒",
+    "description": "弹窗延迟滑块标签",
+    "placeholders": {
+      "delay": {
+        "content": "$1",
+        "example": "1.0"
+      }
+    }
+  },
+  "toastDelayDesc": {
+    "message": "弹窗确认提示的持续时间",
+    "description": "弹窗延迟描述"
+  },
+  "sectionShortcuts": {
+    "message": "键盘快捷键",
+    "description": "键盘快捷键部分"
+  },
+  "shortcutNavCloseLabel": {
+    "message": "导航与关闭",
+    "description": "导航和关闭快捷键标签"
+  },
+  "shortcutNavCloseDesc": {
+    "message": "后退或在历史记录耗尽时关闭标签页",
+    "description": "导航和关闭描述"
+  },
+  "shortcutNavReopenLabel": {
+    "message": "导航与重新打开",
+    "description": "导航和重新打开快捷键标签"
+  },
+  "shortcutNavReopenDesc": {
+    "message": "前进或在无法前进时重新打开最后关闭的标签页",
+    "description": "导航和重新打开描述"
+  },
+  "shortcutConfigBtn": {
+    "message": "在 Chrome 中配置",
+    "description": "打开 Chrome 快捷键设置按钮文本"
+  },
+  "resetBtn": {
+    "message": "重置为默认值",
+    "description": "重置按钮文本"
+  },
+  "resetConfirm": {
+    "message": "您确定要将所有设置重置为默认值吗？",
+    "description": "重置确认消息"
+  },
+  "saveIndicator": {
+    "message": "设置自动保存",
+    "description": "保存指示器文本"
+  },
+  "sectionLanguage": {
+    "message": "语言",
+    "description": "语言部分"
+  },
+  "languageLabel": {
+    "message": "显示语言",
+    "description": "语言选择器标签"
+  },
+  "languageDesc": {
+    "message": "选择您偏好的语言（需要重新加载）",
+    "description": "语言选择器描述"
+  },
+  "languageEn": {
+    "message": "English",
+    "description": "英语选项"
+  },
+  "languageZh": {
+    "message": "简体中文",
+    "description": "简体中文选项"
+  },
+  "popupTitle": {
+    "message": "导航日志",
+    "description": "弹窗标题"
+  },
+  "popupUsage": {
+    "message": "使用 $BACK$ 后退，使用 $FORWARD$ 前进。当导航不可用时，重复命令可关闭或重新打开标签页。",
+    "description": "弹窗使用说明文本",
+    "placeholders": {
+      "back": {
+        "content": "$1",
+        "example": "Alt+Left"
+      },
+      "forward": {
+        "content": "$2",
+        "example": "Alt+Right"
+      }
+    }
+  },
+  "logHint": {
+    "message": "最近 20 条记录。URL 和标题永不存储。",
+    "description": "日志提示文本"
+  },
+  "loggingToggleLabel": {
+    "message": "启用日志记录",
+    "description": "日志记录切换标签"
+  },
+  "clearBtn": {
+    "message": "清除",
+    "description": "清除按钮文本"
+  },
+  "logEmpty": {
+    "message": "暂无记录",
+    "description": "空日志消息"
+  },
+  "logDisabled": {
+    "message": "日志记录已禁用",
+    "description": "日志禁用消息"
+  },
+  "toastCloseMsg": {
+    "message": "再次按后退以关闭此标签页",
+    "description": "关闭确认弹窗消息"
+  },
+  "toastReopenMsg": {
+    "message": "再次按前进以重新打开最后的标签页",
+    "description": "重新打开确认弹窗消息"
+  },
+  "actionShortcutBack": {
+    "message": "快捷键 · 后退",
+    "description": "操作标签：快捷键后退"
+  },
+  "actionShortcutForward": {
+    "message": "快捷键 · 前进",
+    "description": "操作标签：快捷键前进"
+  },
+  "actionBack": {
+    "message": "浏览器后退",
+    "description": "操作标签：浏览器后退"
+  },
+  "actionForward": {
+    "message": "浏览器前进",
+    "description": "操作标签：浏览器前进"
+  },
+  "actionAwaitClose": {
+    "message": "等待关闭确认",
+    "description": "操作标签：等待关闭确认"
+  },
+  "actionCloseTab": {
+    "message": "关闭标签页",
+    "description": "操作标签：关闭标签页"
+  },
+  "actionAwaitReopen": {
+    "message": "等待重新打开确认",
+    "description": "操作标签：等待重新打开确认"
+  },
+  "actionReopenTab": {
+    "message": "重新打开最后的标签页",
+    "description": "操作标签：重新打开最后的标签页"
+  },
+  "settingsBtnTitle": {
+    "message": "设置",
+    "description": "设置按钮标题"
+  }
+}

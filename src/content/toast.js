@@ -99,9 +99,9 @@ function showToast(action, delay = 1000) {
 
   // 设置消息文本
   if (action === 'close') {
-    message.textContent = 'Press back again to close this tab';
+    message.textContent = chrome.i18n.getMessage('toastCloseMsg');
   } else if (action === 'reopen') {
-    message.textContent = 'Press forward again to reopen last tab';
+    message.textContent = chrome.i18n.getMessage('toastReopenMsg');
   }
 
   // 显示Toast
